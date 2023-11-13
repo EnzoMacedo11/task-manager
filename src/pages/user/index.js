@@ -1,70 +1,122 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Header from "../../components/header";
 import UserContext from "../../components/context";
+import {
+  IoPersonAdd,
+  IoPersonRemoveOutline,
+  IoShieldCheckmarkOutline,
+  IoMenu
+} from "react-icons/io5";
 import styled from "styled-components";
 import axios from "axios";
-import { Form, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function User() {
   const { userData, setUserData } = useContext(UserContext);
   const Navigate = useNavigate();
-  const [companyGroupsVisible,setCompanyGroupsVisible]=useState(null)
+  const [companyGroupsVisible, setCompanyGroupsVisible] = useState(null);
   const [userComapanyCode, setUserCompanyCode] = useState("");
+  const [commumGroups, setComumGroups] = useState([]);
   const [company, setCompany] = useState(null);
   const [userSelected, setUserSelected] = useState(null);
   const [user, setUser] = useState(null);
-  console.log("comapany", company);
-  console.log("userSel", userSelected);
-  console.log("user", user);
 
   useEffect(() => {
     if (!userData) {
       Navigate("/login");
     }
-  }, [userData]);
+  }, [userData, Navigate]);
 
   useEffect(() => {
-    getUser();
+    if (userSelected) {
+      getUser();
+      setCompanyGroupsVisible(false);
+    }
   }, [userSelected]);
 
+  useEffect(() => {
+    ComumGroups();
+  }, [user, company]);
+
   async function getUser() {
-    await axios
-      .get("http://192.168.0.14:4001/user/getuser", {
+    try {
+      const response = await axios.get("http://192.168.0.14:4001/user/getuser", {
         headers: { id: userSelected },
-      })
-      .then((response) => {
-        //console.log("getuser",response.data)
-        setUser(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
       });
+      setUser(response.data);
+      ComumGroups();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async function GetUsersbyCompany() {
-    await axios
-      .get("http://192.168.0.14:4001/user/getusersbycompanycode", {
+    try {
+      const response = await axios.get("http://192.168.0.14:4001/user/getusersbycompanycode", {
         headers: { code: userComapanyCode },
-      })
-      .then((response) => {
-        //console.log(response.data)
-        setCompany(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        setCompany(null);
-        setUser(null);
-        alert("Empresa não encontrada");
       });
-  }
-
-  function CompanyGroupsVisible(){
-    if(companyGroupsVisible === true){
-        setCompanyGroupsVisible(false)
-    }else{
-        setCompanyGroupsVisible(true)
+      setCompany(response.data);
+    } catch (error) {
+      console.log(error);
+      setCompany(null);
+      setUser(null);
+      alert("Empresa não encontrada");
     }
   }
+
+  function CompanyGroupsVisible() {
+    setCompanyGroupsVisible((prevVisible) => !prevVisible);
+  }
+
+  function ComumGroups() {
+    if (user && company) {
+      const GroupUser = user.groups;
+      const CompanyUser = company.companyGroups;
+      const ComumGroups = [];
+
+      for (let i = 0; i < CompanyUser.length; i++) {
+        for (let j = 0; j < GroupUser.length; j++) {
+          if (CompanyUser[i].id === GroupUser[j].id) {
+            console.log(`O id:${CompanyUser[i].id} pertence a ambos`);
+            ComumGroups.push(CompanyUser[i].id);
+          }
+        }
+      }
+      setComumGroups(ComumGroups);
+      console.log("comum", commumGroups);
+    }
+  }
+
+  async function AddGroup(groupId) {
+    const data = {
+      userId: userSelected,
+      groupId
+    };
+
+    try {
+      await axios.post("http://192.168.0.14:4001/user/addusertogroup", data);
+      
+      getUser();
+    } catch (error) {
+      console.log(error.response.data);
+    }
+  }
+
+
+  async function RemoveGroup(groupId) {
+    const data = {
+      userId: userSelected,
+      groupId
+    };
+
+    try {
+      await axios.post("http://192.168.0.14:4001/user/removeusertogroup", data);
+      getUser();
+    } catch (error) {
+      console.log(error.response.data);
+    }
+  }
+  
 
   return (
     <>
@@ -72,7 +124,6 @@ export default function User() {
       <Container>
         <Main>
           <TopBox>
-            {" "}
             <DataBox>
               <CompanyTitle>Digite o codigo da empresa</CompanyTitle>
               <InputStyle
@@ -100,37 +151,51 @@ export default function User() {
               </SelectBox>
             )}
           </TopBox>
-                    {user !== null && (
-                        <UserContainer>
-            <UserBox>
-              <UserText>Nome: {user.name}</UserText>
-              <UserText>Matrícula: {user.enrolment}</UserText>
-              <UserText>Ativo: {user.active ? "Ativado" : "Desativado"}</UserText>
-              
-              
-            <UserGroups onClick={CompanyGroupsVisible}>
-            <UserText>Grupos</UserText>
-            {user.groups.map((g) => (
-                    <UserText>{g.name}</UserText>
-))}
-            </UserGroups>
-            <UserLinks>
-            <UserText>Links</UserText>
-            {user.groups.map((g) => (
-                    <UserText>{g.name}</UserText>
-))}
-            </UserLinks>
-             
-            </UserBox>
-            <CompanyGroups visible={companyGroupsVisible}>
-                {company.companyGroups.map((g)=>(
-                    <UserText>{g.name}</UserText>
-                ))}
-                </CompanyGroups></UserContainer>
+          {user !== null && (
+            <UserContainer>
+              <UserBox>
+                <UserText>Nome: {user.name}</UserText>
+                <UserText>Matrícula: {user.enrolment}</UserText>
+                <UserText>
+                  Ativo: {user.active ? "Ativado" : "Desativado"}
+                </UserText>
+
+                <UserGroups onClick={CompanyGroupsVisible}>
+                  <UserText>Grupos</UserText>
+                  {user.groups.map((g) => (
+                    <UserText key={g.id}>{g.name}</UserText>
+                  ))}
+                </UserGroups>
+                <UserLinks>
+                  <UserText>Links</UserText>
+                  {user.groups.map((g) => (
+                    <UserText key={g.id}>{g.name}</UserText>
+                  ))}
+                </UserLinks>
+              </UserBox>
+              <CompanyGroups visible={companyGroupsVisible}>
+                <UserText>Grupos Disponíveis</UserText>
+                <GroupScroll>
+                  {" "}
+                  {company.companyGroups.map((g) => (
+                    <GroupBox key={g.id}>
+                      {commumGroups.includes(g.id) ? (
+                        <IoPersonRemoveOutline onClick={() => RemoveGroup(g.id)} size={20} style={{ marginLeft: "15px" }} />
+                      ) : (
+                        <IoPersonAdd
+                          onClick={() => AddGroup(g.id)}
+                          size={20}
+                          style={{ marginLeft: "15px" }}
+                        />
+                      )}
+                      <UserText>{g.name}</UserText>
+                      <IoMenu style={{ marginRight: "10px" }} />
+                    </GroupBox>
+                  ))}
+                </GroupScroll>
+              </CompanyGroups>
+            </UserContainer>
           )}
-         
-         
-          
         </Main>
       </Container>
     </>
@@ -149,9 +214,6 @@ const Container = styled.div`
 const Main = styled.div`
   display: flex;
   flex-direction: column;
-  //align-items:center;
-  //justify-content: center;
-
   width: 90%;
   height: 97%;
   background-color: green;
@@ -214,7 +276,7 @@ const Select = styled.select`
   height: 30%;
   margin-top: 2%;
   margin-left: 3%;
-  margin-bottom:6%;
+  margin-bottom: 6%;
   border-radius: 15px;
   padding-left: 5%;
 `;
@@ -224,11 +286,12 @@ const UserBox = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 20%;
-  height: 85%;
+  width: 32%;
+  height: 95%;
   border-radius: 20px;
   background-color: grey;
-  margin: 10px;
+  margin-top: 1%;
+  margin-left: 1%;
 `;
 const UserText = styled.text`
   font-size: 18px;
@@ -243,43 +306,63 @@ const TopBox = styled.div`
   background-color: purple;
 `;
 const UserGroups = styled.div`
-margin-top:15px;
-display:flex;
-background-color:purple;
-flex-direction:column;
-//justify-content:center;
-align-items:center;
-width:95%;
-height:30%;
-border-radius:15px;
-`
+  margin-top: 15px;
+  display: flex;
+  background-color: purple;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  height: 30%;
+  border-radius: 15px;
+`;
 const UserLinks = styled.div`
-margin-top:15px;
-display:flex;
-background-color:purple;
-flex-direction:column;
-//justify-content:center;
-align-items:center;
-width:95%;
-height:45%;
-border-radius:15px;
-`
+  margin-top: 15px;
+  display: flex;
+  background-color: purple;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  height: 45%;
+  border-radius: 15px;
+`;
 const CompanyGroups = styled.div`
- display: ${({ visible }) => (visible ? 'flex' : 'none')};
+  display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 20%;
-  height: 85%;
+  width: 32%;
+  height: 95%;
   border-radius: 20px;
   background-color: grey;
-  margin: 10px;
+  margin-top: 1%;
+  margin-left: 1%;
 `;
 
 const UserContainer = styled.div`
-background-color:black;
-display:flex;
-width:100%;
-height:85%;
+  background-color: black;
+  display: flex;
+  width: 100%;
+  height: 85%;
+`;
 
-`
+const GroupBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: purple;
+  width: 100%;
+  height: 15%;
+  margin-bottom: 10px;
+  border-radius: 20px;
+`;
+const GroupScroll = styled.div`
+  margin-top: 15px;
+  width: 95%;
+  height: 98%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+  }
+`;

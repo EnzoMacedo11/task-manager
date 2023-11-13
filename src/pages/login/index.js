@@ -7,7 +7,7 @@ import UserContext from "../../components/context/index.js";
 
 export default function Login() {
   const { userData, setUserData } = useContext(UserContext);
-  console.log(userData)
+  console.log(userData);
   const Navigate = useNavigate();
   const [code, setCode] = useState("");
   const [enrolment, setEnrolment] = useState("");
@@ -25,23 +25,20 @@ export default function Login() {
       enrolment,
       password,
     };
-    axios
-      .post("http://192.168.0.14:4001/user/login", data)
-      .then((response) => {
-        console.log(response.data);
-        setUserData({
-          id: response.data.id,
-          name: response.data.name,
-          enrolment: response.data.enrolment,
-          active:response.data.active,
-          admin:response.data.admin
-
-        });
-        Navigate("/")
-      })
-      .catch((error) => {
-        console.log(error.response);
+    try {
+      const response = axios.post("http://192.168.0.14:4001/user/login", data);
+      console.log(response.data);
+      setUserData({
+        id: response.data.id,
+        name: response.data.name,
+        enrolment: response.data.enrolment,
+        active: response.data.active,
+        admin: response.data.admin,
       });
+      Navigate("/");
+    } catch (error) {
+      console.log(error.response);
+    }
   }
 
   function EnterKeyPress(event) {

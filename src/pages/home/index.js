@@ -24,14 +24,13 @@ export default function Home(){
     },[])
 
    async function getUser(){
-        await axios.get("http://192.168.0.14:4001/user/getuser",{headers:{id:userData.id}})
-        .then(response =>{
-            console.log(response.data)
-            setUser(response.data)
-        })
-        .catch(error=>{
-            console.log(error)
-        })
+    try{
+       const response = await axios.get("http://192.168.0.14:4001/user/getuser",{headers:{id:userData.id}})
+        console.log(response.data)
+        setUser(response.data)
+    }catch(error){
+        console.log(error)
+    }
     }
     
     
