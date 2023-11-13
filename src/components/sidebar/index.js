@@ -18,7 +18,7 @@ export default function Sidebar(props) {
          <Title>Links</Title>
        </Box>
 
-       <Box onClick={() => Navigate("/scanner")}>
+       <Box onClick={() => Navigate("/user")}>
           {" "}
           <Title>Usuários</Title>
         </Box>

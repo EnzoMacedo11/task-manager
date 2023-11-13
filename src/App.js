@@ -3,6 +3,7 @@ import Home from './pages/home';
 import { UserProvider } from './components/context';
 import Login from './pages/login';
 import Register from './pages/register';
+import User from './pages/user';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path='/' Component={Home} />
       <Route path='/login' Component={Login}/>
       <Route path='/register' Component={Register}/>
+      <Route path='/user' Component={User}/>
     </Routes>
     </BrowserRouter></UserProvider>
 

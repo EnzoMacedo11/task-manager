@@ -11,7 +11,7 @@ export default function Home(){
     const [user,setUser] = useState(null)
     const data = [{id:"1",url:"a",descrição:"aa"},{id:"2",url:"a",descrição:"aa"},{id:"3",url:"a",descrição:"aa"},{id:"4",url:"a",descrição:"aa"},{id:"5",url:"a",descrição:"aa"},{id:"6",url:"a",descrição:"aa"},{id:"1",url:"a",descrição:"aa"},{id:"2",url:"a",descrição:"aa"},{id:"3",url:"a",descrição:"aa"},{id:"4",url:"a",descrição:"aa"},{id:"5",url:"a",descrição:"aa"},{id:"6",url:"a",descrição:"aa"}]
     console.log("user",user)
-    console.log(userData)
+    console.log("userdata",userData)
     
     useEffect(() => {
         if (!userData) {
