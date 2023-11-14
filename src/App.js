@@ -4,6 +4,7 @@ import { UserProvider } from './components/context';
 import Login from './pages/login';
 import Register from './pages/register';
 import User from './pages/user';
+import Company from './pages/company';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path='/login' Component={Login}/>
       <Route path='/register' Component={Register}/>
       <Route path='/user' Component={User}/>
+      <Route path='/company' Component={Company}/>
     </Routes>
     </BrowserRouter></UserProvider>
 

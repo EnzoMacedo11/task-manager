@@ -13,9 +13,9 @@ export default function Sidebar(props) {
   if (userData.admin === true) {
     return (
       <Container visible={visible}>
-         <Box onClick={() => Navigate("/vehicles")}>
+         <Box onClick={() => Navigate("/company")}>
          
-         <Title>Links</Title>
+         <Title>Empresas</Title>
        </Box>
 
        <Box onClick={() => Navigate("/user")}>
