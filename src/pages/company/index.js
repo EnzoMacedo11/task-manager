@@ -15,11 +15,21 @@ export default function Company() {
   const { userData, setUserData } = useContext(UserContext);
   const Navigate = useNavigate();
   const [companys, setCompanys] = useState(null);
-  const [companysVisible,setCompanysVisible]=useState(true);
-  const [groupsVisible,setGroupsVisible]=useState(true);
-  const [usersVisible,setUsersVisible]=useState(true);
+  const [companysVisible, setCompanysVisible] = useState(true);
+  const [groupsVisible, setGroupsVisible] = useState(true);
+  const [usersVisible, setUsersVisible] = useState(true);
   const [companySelected, setCompanySelected] = useState("");
-  console.log(companys);
+
+  const [companyName, setCompanyName] = useState("");
+  const [companyCode, setCompanyCode] = useState("");
+
+  const [groupName, setGroupName] = useState(""); 
+
+  const [userName, setUserName] = useState("");
+  const [enrolment, setEnrolment] = useState("");
+  const [cpf,setCpf] = useState("")
+
+  console.log(companyName);
 
   useEffect(() => {
     if (!userData) {
@@ -50,6 +60,93 @@ export default function Company() {
     console.log(company);
   }
 
+  async function SendCompany() {
+    if (companyCode.length < 3 || companyName.length < 3) {
+      alert("Preencha os dados Corretamente");
+    } else {
+      const data = {
+        name: companyName,
+        code: companyCode,
+        userId: userData.id,
+      };
+
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/company/create",
+          data
+        );
+        console.log("response", response.data);
+        getCompany();
+        setCompanyCode("");
+        setCompanyName("");
+        setCompanysVisible(true);
+      } catch (error) {
+        console.log(error.response.data);
+      }
+    }
+  }
+
+  async function SendGroup() {
+    if (groupName.length < 3) {
+      alert("Insira pelo menos 2 caracteres");
+    } else {
+      const data = {
+        name: groupName,
+        companyId: companySelected.id
+      };
+  
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/group/create",
+          data
+        );
+        console.log("response", response.data);
+        setCompanySelected({ ...companySelected, Group: [...companySelected.Group, response.data] });
+        getCompany();
+        setGroupName("");
+        setGroupsVisible(true);
+      } catch (error) {
+        console.log(error.response.data);
+      }
+    }
+  }
+
+  async function SendUser() {
+    if (userName.length < 3 || cpf.length < 9 || enrolment.length < 3) {
+      alert("Preencha os dados corretamente");
+    } else {
+      const data = {
+        name: userName,
+        enrolment,
+        password: cpf,
+        active: true,
+        admin: false,
+        companyCode: companySelected.code,
+      };
+  
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/user/create",
+          data
+        );
+        console.log("response1111", response.data);
+        setCompanySelected({
+          ...companySelected,
+          User: [...companySelected.User, response.data],
+        });
+        getCompany();
+        setUserName("");
+        setEnrolment("");
+        setCpf("");
+        setUsersVisible(true);
+      } catch (error) {
+        console.log(error.response.data);
+      }
+    }
+  }
+  
+  
+
   return (
     <>
       <Header />
@@ -58,36 +155,59 @@ export default function Company() {
           <CompanyInfo>
             <Companys visible={companysVisible}>
               <DataTitle>Empresas Registradas</DataTitle>
-          <CompanyScroll>
-              {companys
-                ? companys.map((c) => (
-                    <CompanyBox
-                      onClick={() => CompanySelected(c.id)}
-                      key={c.id}
-                    >
-                      <CompanyBoxText>
-                        Nome: {c.name} - Código: {c.code}
-                      </CompanyBoxText>
-                    </CompanyBox>
-                  ))
-                : "null"}</CompanyScroll>
-                <NewButton onClick={()=>setCompanysVisible(false)} >Nova Empresa</NewButton>
+              <CompanyScroll>
+                {companys
+                  ? companys.map((c) => (
+                      <CompanyBox
+                        onClick={() => CompanySelected(c.id)}
+                        key={c.id}
+                      >
+                        <CompanyBoxText>
+                          Nome: {c.name} - Código: {c.code}
+                        </CompanyBoxText>
+                      </CompanyBox>
+                    ))
+                  : "null"}
+              </CompanyScroll>
+              <NewButton onClick={() => setCompanysVisible(false)}>
+                Nova Empresa
+              </NewButton>
             </Companys>
-            
+
             <NewCompany visible={companysVisible}>
               <DataTitle>Nova Empresa</DataTitle>
               <InputBox>
                 <CompanyTitle>Nome</CompanyTitle>
-                <InputStyle placeholder="Insira o nome da empresa" />
+                <InputStyle
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="Insira o nome da empresa"
+                />
               </InputBox>
 
               <InputBox>
                 <CompanyTitle>Código</CompanyTitle>
-                <InputStyle type="number" placeholder="Insira o código da empresa" />
+                <InputStyle
+                  value={companyCode}
+                  onChange={(e) => setCompanyCode(e.target.value)}
+                  type="number"
+                  placeholder="Insira o código da empresa"
+                />
               </InputBox>
-              <FormButton onClick={()=>setCompanysVisible(true)} >Criar</FormButton>
+              <FormButton onClick={SendCompany}>Criar</FormButton>
+              <FormButton
+                style={{
+                  margin: 5,
+                  width: "20%",
+                  backgroundColor: "white",
+                  color: "black",
+                  fontSize: "12px",
+                }}
+                onClick={() => setCompanysVisible(true)}
+              >
+                Voltar
+              </FormButton>
             </NewCompany>
-            
           </CompanyInfo>
 
           {companySelected ? (
@@ -100,21 +220,25 @@ export default function Company() {
                   Grupos Disponíveis
                 </GroupBoxText>
                 <GroupScroll>
-                {companySelected.Group.map((g) => (
-                  <GroupBox key={g}>
-                    <GroupBoxText>Grupo: {g.name}</GroupBoxText>
-                  </GroupBox>
-                ))}
+                  {companySelected.Group.map((g) => (
+                    <GroupBox key={g}>
+                      <GroupBoxText>Grupo: {g.name}</GroupBoxText>
+                    </GroupBox>
+                  ))}
                 </GroupScroll>
-                <NewButton onClick={()=>setGroupsVisible(false)} >Novo Grupo</NewButton>
+                <NewButton onClick={() => setGroupsVisible(false)}>
+                  Novo Grupo
+                </NewButton>
               </Groups>
               <NewGroup visible={groupsVisible}>
                 <DataTitle>Novo Grupo</DataTitle>
-                <InputBox style={{marginTop:"60px"}}>
+                <InputBox style={{ marginTop: "60px" }}>
                   <CompanyTitle>Nome</CompanyTitle>
-                  <InputStyle placeholder="Insira o nome do grupo" />
+                  <InputStyle value={groupName} onChange={(e)=>setGroupName(e.target.value)} placeholder="Insira o nome do grupo" />
                 </InputBox>
-                <FormButton  onClick={()=>setGroupsVisible(true)}>Criar</FormButton>
+                <FormButton onClick={SendGroup}>
+                  Criar
+                </FormButton>
               </NewGroup>
             </GroupInfo>
           ) : null}
@@ -129,39 +253,36 @@ export default function Company() {
                   Usuários Disponíveis
                 </GroupBoxText>
                 <UserScroll>
-                {companySelected.User.map((g) => (
-                  <UserBox key={g}>
-                  <GroupBoxText>Usuário: {g.name}</GroupBoxText>
-                  <GroupBoxText>Matricula: {g.enrolment}</GroupBoxText>
-                </UserBox>
-                  
-                ))}</UserScroll>
-                <NewButton onClick={()=>setUsersVisible(false)}>Novo Usuário</NewButton>
+                  {companySelected.User.map((g) => (
+                    <UserBox key={g}>
+                      <GroupBoxText>Usuário: {g.name}</GroupBoxText>
+                      <GroupBoxText>Matricula: {g.enrolment}</GroupBoxText>
+                    </UserBox>
+                  ))}
+                </UserScroll>
+                <NewButton onClick={() => setUsersVisible(false)}>
+                  Novo Usuário
+                </NewButton>
               </Users>
               <NewUser visible={usersVisible}>
                 <DataTitle>Novo Usuário</DataTitle>
                 <InputBox>
                   <CompanyTitle>Nome</CompanyTitle>
-                  <InputStyle placeholder="Insira o nome do usuário" />
+                  <InputStyle value={userName} onChange={(e)=>setUserName(e.target.value)} placeholder="Insira o nome do usuário" />
                 </InputBox>
 
                 <InputBox>
                   <CompanyTitle>Matricula</CompanyTitle>
-                  <InputStyle placeholder="Insira a matricula" />
+                  <InputStyle  value={enrolment} onChange={(e)=>setEnrolment(e.target.value)}  placeholder="Insira a matricula" />
                 </InputBox>
-
-
-                <InputBox >
-                  <CompanyTitle>Admin</CompanyTitle>
-                  <InputStyle style={{width:"5%",height:"18%",backgroundColor:"red"}} type={"checkbox"} placeholder="Insira a matricula" />
-                </InputBox>
-
 
                 <InputBox>
-                  <CompanyTitle>Código</CompanyTitle>
-                  <InputStyle placeholder="Insira o código da empresa" />
+                  <CompanyTitle>CPF</CompanyTitle>
+                  <InputStyle  value={cpf} onChange={(e)=>setCpf(e.target.value)}  placeholder="Insira o CPF do usuário" />
                 </InputBox>
-                <FormButton onClick={()=>setUsersVisible(true)}>Criar</FormButton>
+                <FormButton onClick={SendUser}>
+                  Criar
+                </FormButton>
               </NewUser>
             </UserInfo>
           ) : null}
@@ -232,21 +353,20 @@ const CompanyBox = styled.div`
   align-items: center;
   background-color: grey;
   border-radius: 10px;
-  margin-top: 10px; 
+  margin-top: 10px;
 `;
 
 const CompanyScroll = styled.div`
   width: 60%;
   height: 89%;
-  background-color:red;
+  background-color: red;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
   }
-
-`
+`;
 
 const Companys = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
@@ -259,7 +379,7 @@ const Companys = styled.div`
 `;
 
 const NewCompany = styled.div`
- display: ${({ visible }) => (visible ? "none" : "flex")};
+  display: ${({ visible }) => (visible ? "none" : "flex")};
   flex-direction: column;
   //justify-content: center;
   align-items: center;
@@ -277,13 +397,11 @@ const CompanyTitle = styled.text`
   color: whitesmoke;
 `;
 
-
 const CompanyBoxText = styled.text`
   margin-left: 7px;
   font-size: 18px;
   color: whitesmoke;
 `;
-
 
 const GroupBox = styled.div`
   display: flex;
@@ -307,35 +425,31 @@ const UserBox = styled.div`
 const UserScroll = styled.div`
   width: 60%;
   height: 89%;
-  background-color:red;
+  background-color: red;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
   }
-
-`
+`;
 const GroupScroll = styled.div`
   width: 60%;
   height: 89%;
-  background-color:red;
+  background-color: red;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
   }
-
-`
-
+`;
 
 const GroupBoxText = styled.text`
   margin-left: 7px;
   font-size: 18px;
   color: whitesmoke;
 `;
-
 
 const NewGroup = styled.div`
   display: ${({ visible }) => (visible ? "none" : "flex")};
@@ -362,13 +476,13 @@ const NewUser = styled.div`
 `;
 
 const NewButton = styled.button`
-position:relative;
-bottom:0;
-margin-top:10px;
-width:30%;
-height:5%;
-border-radius:10px;
-`
+  position: relative;
+  bottom: 0;
+  margin-top: 10px;
+  width: 30%;
+  height: 5%;
+  border-radius: 10px;
+`;
 
 const DataTitle = styled.text`
   font-size: 22px;
@@ -410,8 +524,6 @@ const FormButton = styled.button`
   color: whitesmoke;
 `;
 
-
-
 const Groups = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
@@ -422,9 +534,7 @@ const Groups = styled.div`
   border-radius: 15px;
 `;
 
-
 const Users = styled.div`
-
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
@@ -433,19 +543,6 @@ const Users = styled.div`
   width: 90%;
   border-radius: 15px;
 `;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const SelectBox = styled.div`
   display: flex;
