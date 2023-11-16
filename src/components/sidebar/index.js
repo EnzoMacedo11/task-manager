@@ -22,13 +22,6 @@ export default function Sidebar(props) {
           {" "}
           <Title>Usuários</Title>
         </Box>
-
-        <Box onClick={() => Navigate("/search")}>
-          
-          <Title>Criar Usuário</Title>
-        </Box>
-
-
         <Box onClick={() => Navigate("/vehicles")}>
          
           <Title>Grupos</Title>

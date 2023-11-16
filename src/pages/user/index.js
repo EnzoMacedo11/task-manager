@@ -20,12 +20,14 @@ export default function User() {
   const [company, setCompany] = useState(null);
   const [userSelected, setUserSelected] = useState(null);
   const [user, setUser] = useState(null);
+  console.log(user)
 
   const [groupsLinksVisible,setGroupsLinksVisible] = useState(false)
   const [groupSelected,setGroupSelected]=useState("")
   console.log(groupSelected)
 
   const [links,setLinks] = useState()
+  const [comumLinks, setComumLinks] = useState([]);
 
   useEffect(() => {
     if (!userData) {
@@ -37,12 +39,18 @@ export default function User() {
     if (userSelected) {
       getUser();
       setCompanyGroupsVisible(false);
+      setGroupsLinksVisible(false)
     }
   }, [userSelected]);
 
   useEffect(() => {
     ComumGroups();
   }, [user, company]);
+
+  useEffect(() => {
+    ComumLinks();
+  }, [user, links]);
+  
 
   async function getUser() {
     try {
@@ -84,15 +92,30 @@ export default function User() {
       for (let i = 0; i < CompanyUser.length; i++) {
         for (let j = 0; j < GroupUser.length; j++) {
           if (CompanyUser[i].id === GroupUser[j].id) {
-            console.log(`O id:${CompanyUser[i].id} pertence a ambos`);
+            //console.log(`O id:${CompanyUser[i].id} pertence a ambos`);
             ComumGroups.push(CompanyUser[i].id);
           }
         }
       }
       setComumGroups(ComumGroups);
-      console.log("comum", commumGroups);
+      //console.log("comum", commumGroups);
     }
   }
+
+  function ComumLinks() {
+    if (user && links) {
+      
+      const userLinksIds = user.links.map((link) => link.id);
+      console.log("aaa", userLinksIds);
+
+      const LinksId = links.map((link) => link.id);
+      console.log("bbb", LinksId);
+
+      const ComumLinks = userLinksIds.filter((id) => LinksId.includes(id));
+      setComumLinks(ComumLinks)
+      console.log("Links em comum:", ComumLinks);
+    }
+}
 
   async function AddGroup(groupId) {
     const data = {
@@ -139,6 +162,46 @@ async function LinkToGroup(id){
 
 
 }
+
+async function AddLinkToUser(id) {
+  const data = {
+    userId: user.id,
+    id,
+  };
+
+  try {
+    const response = await axios.post("http://192.168.0.14:4001/link/addlinktouser", data);
+    console.log(response);
+    setUser((prevUser) => ({
+      ...prevUser,
+      links: [...prevUser.links, response.data],
+    }));
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function RemoveLinkToUser(id) {
+  const data = {
+    userId: user.id,
+    id,
+  };
+
+  try {
+    const response = await axios.post("http://192.168.0.14:4001/link/removelinktouser", data);
+    console.log(response);
+    getUser()
+    setUser((prevUser) => ({
+      ...prevUser,
+      links: [...prevUser.links, response.data],
+    }));
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 
 
 
@@ -192,8 +255,8 @@ async function LinkToGroup(id){
                 </UserGroups>
                 <UserLinks>
                   <UserText>Links</UserText>
-                  {user.groups.map((g) => (
-                    <UserText key={g.id}>{g.name}</UserText>
+                  {user.links.map((g) => (
+                    <UserText key={g.id}>{g.link}</UserText>
                   ))}
                 </UserLinks>
               </UserBox>
@@ -213,7 +276,12 @@ async function LinkToGroup(id){
                         />
                       )}
                       <UserText>{g.name}</UserText>
-                      <IoMenu onClick={()=>LinkToGroup(g.id)}  style={{ marginRight: "10px" }} />
+                      {commumGroups.includes(g.id) ? (
+                        <IoMenu onClick={()=>LinkToGroup(g.id)}  style={{ marginRight: "10px" }} />
+                      ) : (
+                        <IoMenu onClick={()=>alert("Adicione ao grupo para poder dar acesso aos links")}  style={{ marginRight: "10px" }} />
+                      )}
+                    
                     </GroupBox>
                   ))}
                 </GroupScroll>
@@ -226,17 +294,16 @@ async function LinkToGroup(id){
                   {" "}
                   {links? (links.map((l) => (
                     <GroupBox key={l.id}>
-                      {/* {commumGroups.includes(g.id) ? (
-                        <IoPersonRemoveOutline onClick={() => RemoveGroup(g.id)} size={20} style={{ marginLeft: "15px" }} />
+                       {comumLinks.includes(l.id) ? (
+                        <IoPersonRemoveOutline onClick={() => RemoveLinkToUser(l.id)} size={20} style={{ marginLeft: "15px" }} />
                       ) : (
                         <IoPersonAdd
-                          onClick={() => AddGroup(g.id)}
+                          onClick={()=>AddLinkToUser(l.id)}
                           size={20}
                           style={{ marginLeft: "15px" }}
                         />
-                      )} */}
+                      )} 
                       <UserText>{l.link}</UserText>
-                      <IoMenu style={{ marginRight: "10px" }} />
                     </GroupBox>
                   ))):(null)}
                   
@@ -264,7 +331,7 @@ const Main = styled.div`
   flex-direction: column;
   width: 90%;
   height: 97%;
-  background-color: green;
+  background-color: black;
   border-radius: 15px;
 `;
 
@@ -351,12 +418,14 @@ const TopBox = styled.div`
   justify-content: center;
   width: 100%;
   height: 15%;
-  background-color: purple;
+  border-top-right-radius:15px;
+  border-top-left-radius:15px;
+  background-color: #1f5884;
 `;
 const UserGroups = styled.div`
   margin-top: 15px;
   display: flex;
-  background-color: purple;
+  background-color: #1f5884;
   flex-direction: column;
   align-items: center;
   width: 95%;
@@ -366,7 +435,7 @@ const UserGroups = styled.div`
 const UserLinks = styled.div`
   margin-top: 15px;
   display: flex;
-  background-color: purple;
+  background-color: #1f5884;
   flex-direction: column;
   align-items: center;
   width: 95%;
@@ -397,7 +466,7 @@ const GroupBox = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: purple;
+  background-color: #1f5884;
   width: 100%;
   height: 15%;
   margin-bottom: 10px;

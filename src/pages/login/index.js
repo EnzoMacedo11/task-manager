@@ -19,14 +19,15 @@ export default function Login() {
     }
   }, [userData]);
 
-  function SendForm() {
+  async function SendForm() {
     const data = {
-      companyCode: Number(code),
+      companyCode:code,
       enrolment,
       password,
     };
+    console.log(data)
     try {
-      const response = axios.post("http://192.168.0.14:4001/user/login", data);
+      const response = await axios.post("http://192.168.0.14:4001/user/login", data);
       console.log(response.data);
       setUserData({
         id: response.data.id,
@@ -38,6 +39,7 @@ export default function Login() {
       Navigate("/");
     } catch (error) {
       console.log(error.response);
+      alert(error.response)
     }
   }
 

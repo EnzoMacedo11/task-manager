@@ -204,6 +204,8 @@ export default function Company() {
     setGroupSelectedName(name);
   }
 
+
+
   return (
     <>
       <Header />
@@ -431,7 +433,7 @@ const Main = styled.div`
   align-items: center;
   width: 90%;
   height: 97%;
-  background-color: green;
+  background-color: grey;
   border-radius: 15px;
 `;
 
@@ -443,7 +445,7 @@ const CompanyInfo = styled.div`
   width: 24%;
   height: 99%;
   border-radius: 20px;
-  background-color: grey;
+  background-color: black;
   margin-left: 1%;
 `;
 
@@ -455,7 +457,7 @@ const GroupInfo = styled.div`
   width: 24%;
   height: 99%;
   border-radius: 20px;
-  background-color: grey;
+  background-color: black;
   margin-left: 1%;
 `;
 
@@ -467,7 +469,7 @@ const UserInfo = styled.div`
   width: 24%;
   height: 99%;
   border-radius: 20px;
-  background-color: grey;
+  background-color: black;
   margin-left: 1%;
 `;
 const CompanyBox = styled.div`
@@ -475,7 +477,7 @@ const CompanyBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
-  background-color: grey;
+  background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -483,7 +485,6 @@ const CompanyBox = styled.div`
 const CompanyScroll = styled.div`
   width: 95%;
   height: 89%;
-  background-color: red;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -496,7 +497,6 @@ const Companys = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  background-color: purple;
   height: 98%;
   width: 95%;
   border-radius: 15px;
@@ -510,7 +510,7 @@ const NewCompany = styled.div`
   width: 90%;
   height: 32%;
   border-radius: 20px;
-  background-color: purple;
+  background-color: #1f5884;
   margin-top: 5px;
 `;
 
@@ -532,7 +532,7 @@ const GroupBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
-  background-color: grey;
+  background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -542,14 +542,14 @@ const UserBox = styled.div`
   width: 100%;
   height: 17%;
   align-items: center;
-  background-color: green;
+  background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
 `;
 const UserScroll = styled.div`
   width: 95%;
   height: 89%;
-  background-color: red;
+
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -560,7 +560,6 @@ const UserScroll = styled.div`
 const GroupScroll = styled.div`
   width: 95%;
   height: 89%;
-  background-color: red;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -583,7 +582,7 @@ const NewGroup = styled.div`
   width: 90%;
   height: 32%;
   border-radius: 20px;
-  background-color: purple;
+  background-color: #1f5884;
   margin-top: 5px;
 `;
 
@@ -595,7 +594,7 @@ const NewUser = styled.div`
   width: 90%;
   height: 65%;
   border-radius: 20px;
-  background-color: purple;
+  background-color: #1f5884;
   margin-top: 5px;
 `;
 
@@ -622,7 +621,7 @@ const InputBox = styled.div`
   justify-content: center;
   width: 95%;
   height: 30%;
-  background-color: grey;
+  background-color: #1f5884;
   border-radius: 15px;
 `;
 
@@ -652,7 +651,6 @@ const Groups = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  background-color: purple;
   height: 98%;
   width: 95%;
   border-radius: 15px;
@@ -662,7 +660,6 @@ const Users = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  background-color: purple;
   height: 98%;
   width: 95%;
   border-radius: 15px;
@@ -676,7 +673,7 @@ const LinkInfo = styled.div`
   width: 23%;
   height: 99%;
   border-radius: 20px;
-  background-color: grey;
+  background-color: black;
   margin-left: 1%;
 `;
 
@@ -684,7 +681,7 @@ const Links = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
-  background-color: purple;
+
   height: 98%;
   width: 95%;
   border-radius: 15px;
@@ -693,7 +690,7 @@ const Links = styled.div`
 const LinkScroll = styled.div`
   width: 95%;
   height: 89%;
-  background-color: red;
+ 
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -707,7 +704,7 @@ const LinkBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
-  background-color: grey;
+  background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -726,7 +723,7 @@ const NewLinkBox = styled.div`
   width: 90%;
   height: 65%;
   border-radius: 20px;
-  background-color: purple;
+  background-color: #1f5884;
   margin-top: 5px;
 `;
 
@@ -738,7 +735,7 @@ const SelectBox = styled.div`
   width: 20%;
   height: 85%;
   border-radius: 20px;
-  background-color: grey;
+  background-color: #1f5884;
   margin: 10px;
 `;
 
@@ -762,12 +759,12 @@ const TopBox = styled.div`
   justify-content: center;
   width: 100%;
   height: 15%;
-  background-color: purple;
+  background-color: #1f5884;
 `;
 const UserGroups = styled.div`
   margin-top: 15px;
   display: flex;
-  background-color: purple;
+  background-color: #1f5884;
   flex-direction: column;
   align-items: center;
   width: 95%;
@@ -777,7 +774,7 @@ const UserGroups = styled.div`
 const UserLinks = styled.div`
   margin-top: 15px;
   display: flex;
-  background-color: purple;
+  background-color: #1f5884;
   flex-direction: column;
   align-items: center;
   width: 95%;
