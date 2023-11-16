@@ -21,6 +21,12 @@ export default function User() {
   const [userSelected, setUserSelected] = useState(null);
   const [user, setUser] = useState(null);
 
+  const [groupsLinksVisible,setGroupsLinksVisible] = useState(false)
+  const [groupSelected,setGroupSelected]=useState("")
+  console.log(groupSelected)
+
+  const [links,setLinks] = useState()
+
   useEffect(() => {
     if (!userData) {
       Navigate("/login");
@@ -66,6 +72,7 @@ export default function User() {
 
   function CompanyGroupsVisible() {
     setCompanyGroupsVisible((prevVisible) => !prevVisible);
+    setGroupsLinksVisible(false)
   }
 
   function ComumGroups() {
@@ -117,6 +124,23 @@ export default function User() {
     }
   }
   
+async function LinkToGroup(id){
+  console.log("id",id)
+  setGroupSelected(id)
+  setGroupsLinksVisible((prevVisible) => !prevVisible);
+
+  try{
+    const response = await axios.get("http://192.168.0.14:4001/link/getall",{headers:{id}})
+    setLinks(response.data)
+    console.log(response.data)
+  }catch(error){
+    console.log(error)
+  }
+
+
+}
+
+
 
   return (
     <>
@@ -189,9 +213,33 @@ export default function User() {
                         />
                       )}
                       <UserText>{g.name}</UserText>
-                      <IoMenu style={{ marginRight: "10px" }} />
+                      <IoMenu onClick={()=>LinkToGroup(g.id)}  style={{ marginRight: "10px" }} />
                     </GroupBox>
                   ))}
+                </GroupScroll>
+              </CompanyGroups>
+             
+              <CompanyGroups visible={groupsLinksVisible}>
+                <UserText>Links Disponíveis</UserText>
+                <UserText>Grupo:</UserText>
+                <GroupScroll>
+                  {" "}
+                  {links? (links.map((l) => (
+                    <GroupBox key={l.id}>
+                      {/* {commumGroups.includes(g.id) ? (
+                        <IoPersonRemoveOutline onClick={() => RemoveGroup(g.id)} size={20} style={{ marginLeft: "15px" }} />
+                      ) : (
+                        <IoPersonAdd
+                          onClick={() => AddGroup(g.id)}
+                          size={20}
+                          style={{ marginLeft: "15px" }}
+                        />
+                      )} */}
+                      <UserText>{l.link}</UserText>
+                      <IoMenu style={{ marginRight: "10px" }} />
+                    </GroupBox>
+                  ))):(null)}
+                  
                 </GroupScroll>
               </CompanyGroups>
             </UserContainer>

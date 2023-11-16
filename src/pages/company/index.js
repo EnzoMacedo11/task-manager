@@ -17,17 +17,28 @@ export default function Company() {
   const [companys, setCompanys] = useState(null);
   const [companysVisible, setCompanysVisible] = useState(true);
   const [groupsVisible, setGroupsVisible] = useState(true);
+  const [linkvisible, setLinkVisible] = useState(true);
   const [usersVisible, setUsersVisible] = useState(true);
   const [companySelected, setCompanySelected] = useState("");
 
   const [companyName, setCompanyName] = useState("");
   const [companyCode, setCompanyCode] = useState("");
 
-  const [groupName, setGroupName] = useState(""); 
+  const [groupName, setGroupName] = useState("");
 
   const [userName, setUserName] = useState("");
   const [enrolment, setEnrolment] = useState("");
-  const [cpf,setCpf] = useState("")
+  const [cpf, setCpf] = useState("");
+
+  const [groupSelected, setGroupSelected] = useState(null);
+  const [groupSelectedName, setGroupSelectedName] = useState("");
+  console.log("groupS", groupSelected);
+
+  const [links, setLinks] = useState(null);
+  console.log("links",links)
+  const [link, setLink] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   console.log(companyName);
 
@@ -40,6 +51,17 @@ export default function Company() {
   useEffect(() => {
     getCompany();
   }, []);
+
+  useEffect(() => {
+    setLinkVisible(true);
+    setGroupsVisible(true);
+    setUsersVisible(true);
+    setGroupSelected(null)
+  }, [companySelected]);
+
+  useEffect(() => {
+    GetLinks();
+  }, [groupSelected]);
 
   async function getCompany() {
     try {
@@ -87,21 +109,24 @@ export default function Company() {
   }
 
   async function SendGroup() {
-    if (groupName.length < 3) {
-      alert("Insira pelo menos 2 caracteres");
+    if (groupName.length < 3 || groupName.length > 15) {
+      alert("Insira entre 2 a 15 caracteres");
     } else {
       const data = {
         name: groupName,
-        companyId: companySelected.id
+        companyId: companySelected.id,
       };
-  
+
       try {
         const response = await axios.post(
           "http://192.168.0.14:4001/group/create",
           data
         );
         console.log("response", response.data);
-        setCompanySelected({ ...companySelected, Group: [...companySelected.Group, response.data] });
+        setCompanySelected({
+          ...companySelected,
+          Group: [...companySelected.Group, response.data],
+        });
         getCompany();
         setGroupName("");
         setGroupsVisible(true);
@@ -123,7 +148,7 @@ export default function Company() {
         admin: false,
         companyCode: companySelected.code,
       };
-  
+
       try {
         const response = await axios.post(
           "http://192.168.0.14:4001/user/create",
@@ -144,8 +169,40 @@ export default function Company() {
       }
     }
   }
-  
-  
+
+  async function AddLinktoGroup() {
+    const data = {
+      link,
+      groupId: groupSelected,
+      imageUrl,
+      description,
+    };
+
+    try {
+      const response = await axios.post("http://192.168.0.14:4001/link/create", data);
+      setLinks([...links,response.data])
+      console.log("response.data",response.data);
+      setLinkVisible(true);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function GetLinks() {
+    try {
+      const response = await axios.get("http://192.168.0.14:4001/link/getall", {
+        headers: { id: groupSelected },
+      });
+      setLinks(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function SetGroupInfo(id, name) {
+    setGroupSelected(id);
+    setGroupSelectedName(name);
+  }
 
   return (
     <>
@@ -211,39 +268,6 @@ export default function Company() {
           </CompanyInfo>
 
           {companySelected ? (
-            <GroupInfo>
-              <Groups visible={groupsVisible}>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Empresa: {companySelected.name}
-                </GroupBoxText>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Grupos Disponíveis
-                </GroupBoxText>
-                <GroupScroll>
-                  {companySelected.Group.map((g) => (
-                    <GroupBox key={g}>
-                      <GroupBoxText>Grupo: {g.name}</GroupBoxText>
-                    </GroupBox>
-                  ))}
-                </GroupScroll>
-                <NewButton onClick={() => setGroupsVisible(false)}>
-                  Novo Grupo
-                </NewButton>
-              </Groups>
-              <NewGroup visible={groupsVisible}>
-                <DataTitle>Novo Grupo</DataTitle>
-                <InputBox style={{ marginTop: "60px" }}>
-                  <CompanyTitle>Nome</CompanyTitle>
-                  <InputStyle value={groupName} onChange={(e)=>setGroupName(e.target.value)} placeholder="Insira o nome do grupo" />
-                </InputBox>
-                <FormButton onClick={SendGroup}>
-                  Criar
-                </FormButton>
-              </NewGroup>
-            </GroupInfo>
-          ) : null}
-
-          {companySelected ? (
             <UserInfo>
               <Users visible={usersVisible}>
                 <GroupBoxText onClick={() => setCompanySelected(null)}>
@@ -268,23 +292,123 @@ export default function Company() {
                 <DataTitle>Novo Usuário</DataTitle>
                 <InputBox>
                   <CompanyTitle>Nome</CompanyTitle>
-                  <InputStyle value={userName} onChange={(e)=>setUserName(e.target.value)} placeholder="Insira o nome do usuário" />
+                  <InputStyle
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Insira o nome do usuário"
+                  />
                 </InputBox>
 
                 <InputBox>
                   <CompanyTitle>Matricula</CompanyTitle>
-                  <InputStyle  value={enrolment} onChange={(e)=>setEnrolment(e.target.value)}  placeholder="Insira a matricula" />
+                  <InputStyle
+                    value={enrolment}
+                    onChange={(e) => setEnrolment(e.target.value)}
+                    placeholder="Insira a matricula"
+                  />
                 </InputBox>
 
                 <InputBox>
                   <CompanyTitle>CPF</CompanyTitle>
-                  <InputStyle  value={cpf} onChange={(e)=>setCpf(e.target.value)}  placeholder="Insira o CPF do usuário" />
+                  <InputStyle
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                    placeholder="Insira o CPF do usuário"
+                  />
                 </InputBox>
-                <FormButton onClick={SendUser}>
-                  Criar
-                </FormButton>
+                <FormButton onClick={SendUser}>Criar</FormButton>
               </NewUser>
             </UserInfo>
+          ) : null}
+
+          {companySelected ? (
+            <GroupInfo>
+              <Groups visible={groupsVisible}>
+                <GroupBoxText onClick={() => setCompanySelected(null)}>
+                  Empresa: {companySelected.name}
+                </GroupBoxText>
+                <GroupBoxText onClick={() => setCompanySelected(null)}>
+                  Grupos Disponíveis
+                </GroupBoxText>
+                <GroupScroll>
+                  {companySelected.Group.map((g) => (
+                    <GroupBox key={g}>
+                      <GroupBoxText>Grupo: {g.name}</GroupBoxText>
+                      <NewButton
+                        onClick={() => SetGroupInfo(g.id, g.name)}
+                      ></NewButton>
+                    </GroupBox>
+                  ))}
+                </GroupScroll>
+                <NewButton onClick={() => setGroupsVisible(false)}>
+                  Novo Grupo
+                </NewButton>
+              </Groups>
+              <NewGroup visible={groupsVisible}>
+                <DataTitle>Novo Grupo</DataTitle>
+                <InputBox style={{ marginTop: "60px" }}>
+                  <CompanyTitle>Nome</CompanyTitle>
+                  <InputStyle
+                    value={groupName}
+                    onChange={(e) => setGroupName(e.target.value)}
+                    placeholder="Insira o nome do grupo"
+                  />
+                </InputBox>
+                <FormButton onClick={SendGroup}>Criar</FormButton>
+              </NewGroup>
+            </GroupInfo>
+          ) : null}
+
+          {groupSelected ? (
+            <LinkInfo>
+              <Links visible={linkvisible}>
+                <LinkBoxText>Grupo: {groupSelectedName}</LinkBoxText>
+                <LinkBoxText>Links Registrados</LinkBoxText>
+
+                <LinkScroll>
+                  {links
+                    ? links.map((c) => (
+                        <LinkBox>
+                          <LinkBoxText>url:{c.link}</LinkBoxText>
+                        </LinkBox>
+                      ))
+                    : "null"}
+                </LinkScroll>
+                <NewButton onClick={() => setLinkVisible(false)}>
+                Novo Link
+              </NewButton>
+              </Links>
+              <NewLinkBox visible={linkvisible}>
+                <DataTitle>Novo Link</DataTitle>
+                <InputBox>
+                  <CompanyTitle>Link</CompanyTitle>
+                  <InputStyle
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                    placeholder="Insira o Link da Página"
+                  />
+                </InputBox>
+
+                <InputBox>
+                  <CompanyTitle>Descrição</CompanyTitle>
+                  <InputStyle
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Insira a descrição do item"
+                  />
+                </InputBox>
+
+                <InputBox>
+                  <CompanyTitle>ImageUrl</CompanyTitle>
+                  <InputStyle
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="Insira o url da imagem desejada"
+                  />
+                </InputBox>
+                <FormButton onClick={AddLinktoGroup}>Criar</FormButton>
+              </NewLinkBox>
+            </LinkInfo>
           ) : null}
         </Main>
       </Container>
@@ -316,7 +440,7 @@ const CompanyInfo = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 32%;
+  width: 24%;
   height: 99%;
   border-radius: 20px;
   background-color: grey;
@@ -328,7 +452,7 @@ const GroupInfo = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 32%;
+  width: 24%;
   height: 99%;
   border-radius: 20px;
   background-color: grey;
@@ -340,7 +464,7 @@ const UserInfo = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 32%;
+  width: 24%;
   height: 99%;
   border-radius: 20px;
   background-color: grey;
@@ -357,7 +481,7 @@ const CompanyBox = styled.div`
 `;
 
 const CompanyScroll = styled.div`
-  width: 60%;
+  width: 95%;
   height: 89%;
   background-color: red;
   overflow-y: auto;
@@ -374,7 +498,7 @@ const Companys = styled.div`
   align-items: center;
   background-color: purple;
   height: 98%;
-  width: 90%;
+  width: 95%;
   border-radius: 15px;
 `;
 
@@ -423,7 +547,7 @@ const UserBox = styled.div`
   margin-top: 10px;
 `;
 const UserScroll = styled.div`
-  width: 60%;
+  width: 95%;
   height: 89%;
   background-color: red;
   overflow-y: auto;
@@ -434,7 +558,7 @@ const UserScroll = styled.div`
   }
 `;
 const GroupScroll = styled.div`
-  width: 60%;
+  width: 95%;
   height: 89%;
   background-color: red;
   overflow-y: auto;
@@ -530,7 +654,7 @@ const Groups = styled.div`
   align-items: center;
   background-color: purple;
   height: 98%;
-  width: 90%;
+  width: 95%;
   border-radius: 15px;
 `;
 
@@ -540,8 +664,70 @@ const Users = styled.div`
   align-items: center;
   background-color: purple;
   height: 98%;
-  width: 90%;
+  width: 95%;
   border-radius: 15px;
+`;
+
+const LinkInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 23%;
+  height: 99%;
+  border-radius: 20px;
+  background-color: grey;
+  margin-left: 1%;
+`;
+
+const Links = styled.div`
+  display: ${({ visible }) => (visible ? "flex" : "none")};
+  flex-direction: column;
+  align-items: center;
+  background-color: purple;
+  height: 98%;
+  width: 95%;
+  border-radius: 15px;
+`;
+
+const LinkScroll = styled.div`
+  width: 95%;
+  height: 89%;
+  background-color: red;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+  }
+`;
+
+const LinkBox = styled.div`
+  display: flex;
+  width: 100%;
+  height: 15%;
+  align-items: center;
+  background-color: grey;
+  border-radius: 10px;
+  margin-top: 10px;
+`;
+
+const LinkBoxText = styled.text`
+  margin-left: 7px;
+  font-size: 18px;
+  color: whitesmoke;
+`;
+
+const NewLinkBox = styled.div`
+  display: ${({ visible }) => (visible ? "none" : "flex")};
+  flex-direction: column;
+  //justify-content: center;
+  align-items: center;
+  width: 90%;
+  height: 65%;
+  border-radius: 20px;
+  background-color: purple;
+  margin-top: 5px;
 `;
 
 const SelectBox = styled.div`
