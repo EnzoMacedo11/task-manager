@@ -6,6 +6,7 @@ import {
   IoPersonRemoveOutline,
   IoShieldCheckmarkOutline,
   IoMenu,
+  IoTrashSharp,
 } from "react-icons/io5";
 import styled from "styled-components";
 import axios from "axios";
@@ -35,7 +36,7 @@ export default function Company() {
   console.log("groupS", groupSelected);
 
   const [links, setLinks] = useState(null);
-  console.log("links",links)
+  console.log("links", links);
   const [link, setLink] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -56,7 +57,7 @@ export default function Company() {
     setLinkVisible(true);
     setGroupsVisible(true);
     setUsersVisible(true);
-    setGroupSelected(null)
+    setGroupSelected(null);
   }, [companySelected]);
 
   useEffect(() => {
@@ -179,12 +180,18 @@ export default function Company() {
     };
 
     try {
-      const response = await axios.post("http://192.168.0.14:4001/link/create", data);
-      setLinks([...links,response.data])
-      console.log("response.data",response.data);
+      const response = await axios.post(
+        "http://192.168.0.14:4001/link/create",
+        data
+      );
+      setLinks([...links, response.data]);
+      console.log("response.data", response.data);
       setLinkVisible(true);
+      setLink("");
+      setImageUrl("");
+      setDescription("");
     } catch (error) {
-      console.log(error);
+      alert(error.response.data);
     }
   }
 
@@ -204,7 +211,115 @@ export default function Company() {
     setGroupSelectedName(name);
   }
 
+  // Delete Functions
 
+  async function DeleteLink(id) {
+    const confirm = window.confirm(
+      "Deseja realmente apagar o link? - Esta ação é irreversivel"
+    );
+    console.log(confirm);
+    const data = {
+      id,
+    };
+    if (confirm) {
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/link/remove",
+          data
+        );
+        console.log(response.data);
+        GetLinks();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function DeleteUser(u) {
+    const confirm = window.confirm(
+      `Deseja realmente apagar o usuário ${u.name}? - Esta ação é irreversivel`
+    );
+    console.log(confirm);
+    const data = {
+      id: u.id,
+    };
+    if (confirm) {
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/user/remove",
+          data
+        );
+        setCompanySelected((prevCompany) => {
+          const updatedUsers = prevCompany.User.filter(
+            (user) => user.id !== u.id
+          );
+          return {
+            ...prevCompany,
+            User: updatedUsers,
+          };
+        });
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function DeleteGroup(g) {
+    const confirm = window.confirm(
+      `Deseja realmente apagar o grupo ${g.name}? - \nEsta ação é irreversivel e irá deletar todos os links desse grupo`
+    );
+    console.log(confirm);
+    const data = {
+      id: g.id,
+    };
+    if (confirm) {
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/group/remove",
+          data
+        );
+        console.log(response);
+        setCompanySelected((prevCompany) => {
+          const updatedGroups = prevCompany.Group.filter(
+            (group) => group.id !== g.id
+          );
+
+          return {
+            ...prevCompany,
+            Group: updatedGroups,
+          };
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  async function DeleteCompany(c) {
+    const confirm = window.confirm(
+      `Deseja realmente apagar o grupo ${c.name}? - \nEsta ação é irreversivel e irá apagar todos os usuários, grupos e links dessa empresa `
+    );
+    console.log(confirm);
+    const data = {
+      id: c.id,
+    };
+    if (confirm) {
+      try {
+        const response = await axios.post(
+          "http://192.168.0.14:4001/company/remove",
+          data
+        );
+        setCompanys((prevCompanies) =>
+          prevCompanies.filter((company) => company.id !== c.id)
+        );
+        setCompanySelected(null);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   return (
     <>
@@ -224,6 +339,10 @@ export default function Company() {
                         <CompanyBoxText>
                           Nome: {c.name} - Código: {c.code}
                         </CompanyBoxText>
+                        <IoTrashSharp
+                          onClick={() => DeleteCompany(c)}
+                          color="white"
+                        />
                       </CompanyBox>
                     ))
                   : "null"}
@@ -279,10 +398,14 @@ export default function Company() {
                   Usuários Disponíveis
                 </GroupBoxText>
                 <UserScroll>
-                  {companySelected.User.map((g) => (
-                    <UserBox key={g}>
-                      <GroupBoxText>Usuário: {g.name}</GroupBoxText>
-                      <GroupBoxText>Matricula: {g.enrolment}</GroupBoxText>
+                  {companySelected.User.map((u) => (
+                    <UserBox key={u}>
+                      <GroupBoxText>Usuário: {u.name}</GroupBoxText>
+                      <GroupBoxText>Matricula: {u.enrolment}</GroupBoxText>
+                      <IoTrashSharp
+                        onClick={() => DeleteUser(u)}
+                        color="white"
+                      />
                     </UserBox>
                   ))}
                 </UserScroll>
@@ -292,33 +415,57 @@ export default function Company() {
               </Users>
               <NewUser visible={usersVisible}>
                 <DataTitle>Novo Usuário</DataTitle>
-                <InputBox>
+                <InputBox style={{ height: "19%", border: "solid 1px" }}>
                   <CompanyTitle>Nome</CompanyTitle>
                   <InputStyle
+                    style={{ height: "20%" }}
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     placeholder="Insira o nome do usuário"
                   />
                 </InputBox>
 
-                <InputBox>
+                <InputBox style={{ height: "19%", border: "solid 1px" }}>
                   <CompanyTitle>Matricula</CompanyTitle>
                   <InputStyle
+                    style={{ height: "20%" }}
                     value={enrolment}
                     onChange={(e) => setEnrolment(e.target.value)}
                     placeholder="Insira a matricula"
                   />
                 </InputBox>
 
-                <InputBox>
+                <InputBox style={{ height: "19%", border: "solid 1px" }}>
                   <CompanyTitle>CPF</CompanyTitle>
                   <InputStyle
+                    style={{ height: "20%" }}
                     value={cpf}
                     onChange={(e) => setCpf(e.target.value)}
                     placeholder="Insira o CPF do usuário"
                   />
                 </InputBox>
-                <FormButton onClick={SendUser}>Criar</FormButton>
+                <FormButton
+                  style={{
+                    marginTop: "8%",
+                    height: "6%",
+                  }}
+                  onClick={SendUser}
+                >
+                  Criar
+                </FormButton>
+                <FormButton
+                  style={{
+                    margin: 5,
+                    width: "20%",
+                    height: "5%",
+                    backgroundColor: "white",
+                    color: "black",
+                    fontSize: "12px",
+                  }}
+                  onClick={() => setUsersVisible(true)}
+                >
+                  Voltar
+                </FormButton>
               </NewUser>
             </UserInfo>
           ) : null}
@@ -336,9 +483,17 @@ export default function Company() {
                   {companySelected.Group.map((g) => (
                     <GroupBox key={g}>
                       <GroupBoxText>Grupo: {g.name}</GroupBoxText>
+
                       <NewButton
+                        style={{ width: "15%", height: "22%", margin: 0 }}
                         onClick={() => SetGroupInfo(g.id, g.name)}
-                      ></NewButton>
+                      >
+                        Links
+                      </NewButton>
+                      <IoTrashSharp
+                        onClick={() => DeleteGroup(g)}
+                        color="white"
+                      />
                     </GroupBox>
                   ))}
                 </GroupScroll>
@@ -348,7 +503,7 @@ export default function Company() {
               </Groups>
               <NewGroup visible={groupsVisible}>
                 <DataTitle>Novo Grupo</DataTitle>
-                <InputBox style={{ marginTop: "60px" }}>
+                <InputBox style={{ marginTop: "20px" }}>
                   <CompanyTitle>Nome</CompanyTitle>
                   <InputStyle
                     value={groupName}
@@ -356,7 +511,21 @@ export default function Company() {
                     placeholder="Insira o nome do grupo"
                   />
                 </InputBox>
-                <FormButton onClick={SendGroup}>Criar</FormButton>
+                <FormButton style={{ marginTop: "8%" }} onClick={SendGroup}>
+                  Criar
+                </FormButton>
+                <FormButton
+                  style={{
+                    margin: 5,
+                    width: "20%",
+                    backgroundColor: "white",
+                    color: "black",
+                    fontSize: "12px",
+                  }}
+                  onClick={() => setGroupsVisible(true)}
+                >
+                  Voltar
+                </FormButton>
               </NewGroup>
             </GroupInfo>
           ) : null}
@@ -369,16 +538,20 @@ export default function Company() {
 
                 <LinkScroll>
                   {links
-                    ? links.map((c) => (
-                        <LinkBox>
-                          <LinkBoxText>url:{c.link}</LinkBoxText>
+                    ? links.map((l) => (
+                        <LinkBox key={l}>
+                          <LinkBoxText>Descrição:{l.description}</LinkBoxText>
+                          <IoTrashSharp
+                            onClick={() => DeleteLink(l.id)}
+                            color="white"
+                          />
                         </LinkBox>
                       ))
                     : "null"}
                 </LinkScroll>
                 <NewButton onClick={() => setLinkVisible(false)}>
-                Novo Link
-              </NewButton>
+                  Novo Link
+                </NewButton>
               </Links>
               <NewLinkBox visible={linkvisible}>
                 <DataTitle>Novo Link</DataTitle>
@@ -433,7 +606,7 @@ const Main = styled.div`
   align-items: center;
   width: 90%;
   height: 97%;
-  background-color: grey;
+  background-color: black;
   border-radius: 15px;
 `;
 
@@ -443,9 +616,9 @@ const CompanyInfo = styled.div`
   align-items: center;
   justify-content: center;
   width: 24%;
-  height: 99%;
+  height: 95%;
   border-radius: 20px;
-  background-color: black;
+  background-color: grey;
   margin-left: 1%;
 `;
 
@@ -455,9 +628,9 @@ const GroupInfo = styled.div`
   align-items: center;
   justify-content: center;
   width: 24%;
-  height: 99%;
+  height: 95%;
   border-radius: 20px;
-  background-color: black;
+  background-color: grey;
   margin-left: 1%;
 `;
 
@@ -467,9 +640,9 @@ const UserInfo = styled.div`
   align-items: center;
   justify-content: center;
   width: 24%;
-  height: 99%;
+  height: 95%;
   border-radius: 20px;
-  background-color: black;
+  background-color: grey;
   margin-left: 1%;
 `;
 const CompanyBox = styled.div`
@@ -484,6 +657,7 @@ const CompanyBox = styled.div`
 
 const CompanyScroll = styled.div`
   width: 95%;
+  margin-top: 5px;
   height: 89%;
   overflow-y: auto;
   scrollbar-width: none;
@@ -532,6 +706,7 @@ const GroupBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
+  justify-content: space-around;
   background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
@@ -549,7 +724,7 @@ const UserBox = styled.div`
 const UserScroll = styled.div`
   width: 95%;
   height: 89%;
-
+  margin-top: 5px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -560,6 +735,7 @@ const UserScroll = styled.div`
 const GroupScroll = styled.div`
   width: 95%;
   height: 89%;
+  margin-top: 5px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -580,7 +756,7 @@ const NewGroup = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 32%;
+  height: 28%;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -592,7 +768,7 @@ const NewUser = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 65%;
+  height: 50%;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -621,6 +797,7 @@ const InputBox = styled.div`
   justify-content: center;
   width: 95%;
   height: 30%;
+  border: solid 1px;
   background-color: #1f5884;
   border-radius: 15px;
 `;
@@ -671,9 +848,9 @@ const LinkInfo = styled.div`
   align-items: center;
   justify-content: center;
   width: 23%;
-  height: 99%;
+  height: 95%;
   border-radius: 20px;
-  background-color: black;
+  background-color: grey;
   margin-left: 1%;
 `;
 
@@ -690,7 +867,7 @@ const Links = styled.div`
 const LinkScroll = styled.div`
   width: 95%;
   height: 89%;
- 
+  margin-top: 5px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;

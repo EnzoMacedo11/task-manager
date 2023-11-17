@@ -106,10 +106,9 @@ export default function User() {
     if (user && links) {
       
       const userLinksIds = user.links.map((link) => link.id);
-      console.log("aaa", userLinksIds);
-
+     
       const LinksId = links.map((link) => link.id);
-      console.log("bbb", LinksId);
+     
 
       const ComumLinks = userLinksIds.filter((id) => LinksId.includes(id));
       setComumLinks(ComumLinks)
