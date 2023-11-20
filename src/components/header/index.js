@@ -31,8 +31,8 @@ export default function Header() {
           <Container>
             <Left>
               <IoMenu size={22} onClick={SidebarToogle} />
-              <LeftText> Categorias: </LeftText>
-              <StyleSelect></StyleSelect>
+              <LeftText> Categorias </LeftText>
+              {/* <StyleSelect></StyleSelect> */}
              
             </Left>
             <div
@@ -44,9 +44,9 @@ export default function Header() {
             </div>
 
             <IoShieldCheckmarkOutline size={18} style={{ marginLeft: "5px" }} />
-            <Right>
-                <RightText>Buscar: </RightText>
-            <StyleInput/>
+            <Right >
+                <RightText style={{ marginRight: "25px" }}  >Buscar</RightText>
+            {/* <StyleInput/> */}
               <IoLogOutOutline onClick={() => setUserData(null)} size={22} />
             </Right>
           </Container>

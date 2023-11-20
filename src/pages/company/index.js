@@ -7,6 +7,7 @@ import {
   IoShieldCheckmarkOutline,
   IoMenu,
   IoTrashSharp,
+  IoPersonSharp,
 } from "react-icons/io5";
 import styled from "styled-components";
 import axios from "axios";
@@ -20,7 +21,7 @@ export default function Company() {
   const [groupsVisible, setGroupsVisible] = useState(true);
   const [linkvisible, setLinkVisible] = useState(true);
   const [usersVisible, setUsersVisible] = useState(true);
-  const [companySelected, setCompanySelected] = useState("");
+  const [companySelected, setCompanySelected] = useState(null);
 
   const [companyName, setCompanyName] = useState("");
   const [companyCode, setCompanyCode] = useState("");
@@ -80,12 +81,17 @@ export default function Company() {
   function CompanySelected(id) {
     const company = companys.find((c) => c.id === id);
     setCompanySelected(company);
+    if (companySelected === company) {
+      setCompanySelected(null);
+    }
     console.log(company);
   }
 
   async function SendCompany() {
-    if (companyCode.length < 3 || companyName.length < 3) {
-      alert("Preencha os dados Corretamente");
+    if (companyCode.length < 3 || companyCode.length > 6) {
+      alert("Insira um código de 3 até 6 digitos");
+    } else if (companyName.length < 3 || companyName.length > 20) {
+      alert("Insira um nome de 3 até 20 digitos");
     } else {
       const data = {
         name: companyName,
@@ -103,15 +109,16 @@ export default function Company() {
         setCompanyCode("");
         setCompanyName("");
         setCompanysVisible(true);
+        setCompanySelected(null);
       } catch (error) {
-        console.log(error.response.data);
+        alert(error.response.data);
       }
     }
   }
 
   async function SendGroup() {
-    if (groupName.length < 3 || groupName.length > 15) {
-      alert("Insira entre 2 a 15 caracteres");
+    if (groupName.length < 3 || groupName.length > 30) {
+      alert("Insira um nome de 3 até 25 digitos");
     } else {
       const data = {
         name: groupName,
@@ -138,8 +145,12 @@ export default function Company() {
   }
 
   async function SendUser() {
-    if (userName.length < 3 || cpf.length < 9 || enrolment.length < 3) {
-      alert("Preencha os dados corretamente");
+    if (enrolment.length < 3 || enrolment.length > 8) {
+      alert("Insira uma matrícula de 3 até 8 digitos");
+    } else if (userName.length < 10 || userName.length > 40) {
+      alert("Insira um nome de 10 até 40 digitos");
+    } else if (cpf.length != 11) {
+      alert("Insira um cpf de 11 digitos");
     } else {
       const data = {
         name: userName,
@@ -206,10 +217,78 @@ export default function Company() {
     }
   }
 
-  function SetGroupInfo(id, name) {
-    setGroupSelected(id);
-    setGroupSelectedName(name);
+  async function UserActive(u){
+    const data = {id: u.id}
+    console.log(u)
+    if(u.active){
+      try{
+        const response = await axios.post("http://192.168.0.14:4001/user/disable",data)
+        console.log(response.data)
+        const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
+        console.log(companySelected)
+        console.log("aa",newArray)
+        setCompanySelected({
+          ...companySelected,
+          User: newArray,
+        });
+
+        
+      }catch(error){
+        console.log(error)
+      }
+    }else{
+      try{
+        const response = await axios.post("http://192.168.0.14:4001/user/active",data)
+        console.log(response.data)
+        const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
+        console.log(companySelected)
+        console.log("aa",newArray)
+        setCompanySelected({
+          ...companySelected,
+          User: newArray,
+        });
+      }catch(error){
+        console.log(error)
+      }
+    }
+
   }
+
+
+  function SetGroupInfo(id, name) {
+    if (groupSelected == id) {
+      setGroupSelected(null);
+    } else {
+      setGroupSelected(id);
+      setGroupSelectedName(name);
+    }
+  }
+
+  function EnterKeyCompany(event) {
+    if (event.key === "Enter") {
+     SendCompany()
+    }
+  }
+
+  function EnterKeyGroup(event) {
+    if (event.key === "Enter") {
+  SendGroup()
+    }
+  }
+
+  function EnterKeyUser(event) {
+    if (event.key === "Enter") {
+     SendUser()
+    }
+  }
+  function EnterKeyLink(event) {
+    if (event.key === "Enter") {
+      AddLinktoGroup()
+    }
+  }
+
+
+
 
   // Delete Functions
 
@@ -240,6 +319,7 @@ export default function Company() {
       `Deseja realmente apagar o usuário ${u.name}? - Esta ação é irreversivel`
     );
     console.log(confirm);
+    console.log(u)
     const data = {
       id: u.id,
     };
@@ -249,6 +329,7 @@ export default function Company() {
           "http://192.168.0.14:4001/user/remove",
           data
         );
+        getCompany();
         setCompanySelected((prevCompany) => {
           const updatedUsers = prevCompany.User.filter(
             (user) => user.id !== u.id
@@ -280,6 +361,7 @@ export default function Company() {
           data
         );
         console.log(response);
+        getCompany()
         setCompanySelected((prevCompany) => {
           const updatedGroups = prevCompany.Group.filter(
             (group) => group.id !== g.id
@@ -321,6 +403,22 @@ export default function Company() {
     }
   }
 
+    // Sort Items
+
+  if(companys){
+    companys.sort((a,b)=> a.name.localeCompare(b.name))
+    console.log("!!!!!!!!!!!!!",companys)
+  }
+
+  if(companySelected){
+  companySelected.User.sort((a,b)=>a.name.localeCompare(b.name))
+    companySelected.Group.sort((a,b)=>a.name.localeCompare(b.name))
+  }
+
+  if(links){
+    links.sort((a,b)=> a.description.localeCompare(b.description))
+  }
+ 
   return (
     <>
       <Header />
@@ -336,13 +434,19 @@ export default function Company() {
                         onClick={() => CompanySelected(c.id)}
                         key={c.id}
                       >
-                        <CompanyBoxText>
-                          Nome: {c.name} - Código: {c.code}
-                        </CompanyBoxText>
-                        <IoTrashSharp
-                          onClick={() => DeleteCompany(c)}
-                          color="white"
-                        />
+                        <BoxStyled style={{ width: "55%" }}>
+                          {" "}
+                          <CompanyBoxText>Nome: {c.name}</CompanyBoxText>
+                        </BoxStyled>
+                        <BoxStyled style={{ width: "35%" }}>
+                          <CompanyBoxText>Código: {c.code}</CompanyBoxText>
+                        </BoxStyled>
+                        <BoxStyledIcon>
+                          <IoTrashSharp
+                            onClick={() => DeleteCompany(c)}
+                            color="white"
+                          />
+                        </BoxStyledIcon>
                       </CompanyBox>
                     ))
                   : "null"}
@@ -357,6 +461,7 @@ export default function Company() {
               <InputBox>
                 <CompanyTitle>Nome</CompanyTitle>
                 <InputStyle
+                onKeyDown={EnterKeyCompany}
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Insira o nome da empresa"
@@ -366,6 +471,7 @@ export default function Company() {
               <InputBox>
                 <CompanyTitle>Código</CompanyTitle>
                 <InputStyle
+                  onKeyDown={EnterKeyCompany}
                   value={companyCode}
                   onChange={(e) => setCompanyCode(e.target.value)}
                   type="number"
@@ -375,8 +481,9 @@ export default function Company() {
               <FormButton onClick={SendCompany}>Criar</FormButton>
               <FormButton
                 style={{
-                  margin: 5,
+                  marginTop: "10px",
                   width: "20%",
+                  height: "30px",
                   backgroundColor: "white",
                   color: "black",
                   fontSize: "12px",
@@ -391,21 +498,31 @@ export default function Company() {
           {companySelected ? (
             <UserInfo>
               <Users visible={usersVisible}>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Empresa: {companySelected.name}
-                </GroupBoxText>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Usuários Disponíveis
-                </GroupBoxText>
+                <GroupBoxText>Empresa: {companySelected.name}</GroupBoxText>
+                <GroupBoxText>Usuários Disponíveis</GroupBoxText>
                 <UserScroll>
                   {companySelected.User.map((u) => (
                     <UserBox key={u}>
-                      <GroupBoxText>Usuário: {u.name}</GroupBoxText>
-                      <GroupBoxText>Matricula: {u.enrolment}</GroupBoxText>
-                      <IoTrashSharp
-                        onClick={() => DeleteUser(u)}
-                        color="white"
-                      />
+                      <BoxStyled style={{ width: "80%" ,display:"flex",flexDirection:"column",alignItems:"flex-start"}}>
+                        <GroupBoxText >Nome: {u.name}</GroupBoxText>
+                        <GroupBoxText style={{marginTop:"15px",border:"solid black 2px"}}>Matricula: {u.enrolment}</GroupBoxText>
+                      </BoxStyled>
+                     
+                    
+                        {u.active ? ( <BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} />
+                   
+                      </BoxStyledIcon>):(<BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} color="white"/>
+                   </BoxStyledIcon>)}
+
+                     
+
+                      <BoxStyledIcon>
+                        {" "}
+                        <IoTrashSharp
+                          onClick={() => DeleteUser(u)}
+                          color="white"
+                        />
+                      </BoxStyledIcon>
                     </UserBox>
                   ))}
                 </UserScroll>
@@ -415,49 +532,43 @@ export default function Company() {
               </Users>
               <NewUser visible={usersVisible}>
                 <DataTitle>Novo Usuário</DataTitle>
-                <InputBox style={{ height: "19%", border: "solid 1px" }}>
+                <InputBox>
                   <CompanyTitle>Nome</CompanyTitle>
                   <InputStyle
-                    style={{ height: "20%" }}
+                  onKeyDown={EnterKeyUser}
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     placeholder="Insira o nome do usuário"
                   />
                 </InputBox>
 
-                <InputBox style={{ height: "19%", border: "solid 1px" }}>
+                <InputBox>
                   <CompanyTitle>Matricula</CompanyTitle>
                   <InputStyle
-                    style={{ height: "20%" }}
+                  onKeyDown={EnterKeyUser}
+                    type="number"
                     value={enrolment}
                     onChange={(e) => setEnrolment(e.target.value)}
                     placeholder="Insira a matricula"
                   />
                 </InputBox>
 
-                <InputBox style={{ height: "19%", border: "solid 1px" }}>
+                <InputBox>
                   <CompanyTitle>CPF</CompanyTitle>
                   <InputStyle
-                    style={{ height: "20%" }}
+                  onKeyDown={EnterKeyUser}
+                    type="number"
                     value={cpf}
                     onChange={(e) => setCpf(e.target.value)}
                     placeholder="Insira o CPF do usuário"
                   />
                 </InputBox>
+                <FormButton onClick={SendUser}>Criar</FormButton>
                 <FormButton
                   style={{
-                    marginTop: "8%",
-                    height: "6%",
-                  }}
-                  onClick={SendUser}
-                >
-                  Criar
-                </FormButton>
-                <FormButton
-                  style={{
-                    margin: 5,
+                    marginTop: "10px",
                     width: "20%",
-                    height: "5%",
+                    height: "30px",
                     backgroundColor: "white",
                     color: "black",
                     fontSize: "12px",
@@ -473,27 +584,24 @@ export default function Company() {
           {companySelected ? (
             <GroupInfo>
               <Groups visible={groupsVisible}>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Empresa: {companySelected.name}
-                </GroupBoxText>
-                <GroupBoxText onClick={() => setCompanySelected(null)}>
-                  Grupos Disponíveis
-                </GroupBoxText>
+                <GroupBoxText>Empresa: {companySelected.name}</GroupBoxText>
+                <GroupBoxText>Grupos Disponíveis</GroupBoxText>
                 <GroupScroll>
                   {companySelected.Group.map((g) => (
-                    <GroupBox key={g}>
-                      <GroupBoxText>Grupo: {g.name}</GroupBoxText>
+                    <GroupBox
+                      onClick={() => SetGroupInfo(g.id, g.name)}
+                      key={g}
+                    >
+                      <BoxStyled style={{ width: "90%" }}>
+                        <GroupBoxText>Grupo: {g.name}</GroupBoxText>
+                      </BoxStyled>
 
-                      <NewButton
-                        style={{ width: "15%", height: "22%", margin: 0 }}
-                        onClick={() => SetGroupInfo(g.id, g.name)}
-                      >
-                        Links
-                      </NewButton>
-                      <IoTrashSharp
-                        onClick={() => DeleteGroup(g)}
-                        color="white"
-                      />
+                      <BoxStyledIcon>
+                        <IoTrashSharp
+                          onClick={() => DeleteGroup(g)}
+                          color="white"
+                        />
+                      </BoxStyledIcon>
                     </GroupBox>
                   ))}
                 </GroupScroll>
@@ -503,21 +611,21 @@ export default function Company() {
               </Groups>
               <NewGroup visible={groupsVisible}>
                 <DataTitle>Novo Grupo</DataTitle>
-                <InputBox style={{ marginTop: "20px" }}>
+                <InputBox>
                   <CompanyTitle>Nome</CompanyTitle>
                   <InputStyle
+                  onKeyDown={EnterKeyGroup}
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)}
                     placeholder="Insira o nome do grupo"
                   />
                 </InputBox>
-                <FormButton style={{ marginTop: "8%" }} onClick={SendGroup}>
-                  Criar
-                </FormButton>
+                <FormButton onClick={SendGroup}>Criar</FormButton>
                 <FormButton
                   style={{
-                    margin: 5,
+                    marginTop: "10px",
                     width: "20%",
+                    height: "30px",
                     backgroundColor: "white",
                     color: "black",
                     fontSize: "12px",
@@ -540,11 +648,17 @@ export default function Company() {
                   {links
                     ? links.map((l) => (
                         <LinkBox key={l}>
-                          <LinkBoxText>Descrição:{l.description}</LinkBoxText>
-                          <IoTrashSharp
-                            onClick={() => DeleteLink(l.id)}
-                            color="white"
-                          />
+                          <BoxStyled style={{ width: "90%" }}>
+                            <LinkBoxText>
+                              Descrição: {l.description}
+                            </LinkBoxText>
+                          </BoxStyled>
+                          <BoxStyledIcon>
+                            <IoTrashSharp
+                              onClick={() => DeleteLink(l.id)}
+                              color="white"
+                            />
+                          </BoxStyledIcon>
                         </LinkBox>
                       ))
                     : "null"}
@@ -558,6 +672,7 @@ export default function Company() {
                 <InputBox>
                   <CompanyTitle>Link</CompanyTitle>
                   <InputStyle
+                  onKeyDown={EnterKeyLink}
                     value={link}
                     onChange={(e) => setLink(e.target.value)}
                     placeholder="Insira o Link da Página"
@@ -567,6 +682,7 @@ export default function Company() {
                 <InputBox>
                   <CompanyTitle>Descrição</CompanyTitle>
                   <InputStyle
+                      onKeyDown={EnterKeyLink}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Insira a descrição do item"
@@ -576,12 +692,26 @@ export default function Company() {
                 <InputBox>
                   <CompanyTitle>ImageUrl</CompanyTitle>
                   <InputStyle
+                      onKeyDown={EnterKeyLink}
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="Insira o url da imagem desejada"
                   />
                 </InputBox>
                 <FormButton onClick={AddLinktoGroup}>Criar</FormButton>
+                <FormButton
+                  style={{
+                    marginTop: "10px",
+                    width: "20%",
+                    height: "30px",
+                    backgroundColor: "white",
+                    color: "black",
+                    fontSize: "12px",
+                  }}
+                  onClick={() => setLinkVisible(true)}
+                >
+                  Voltar
+                </FormButton>
               </NewLinkBox>
             </LinkInfo>
           ) : null}
@@ -650,9 +780,23 @@ const CompanyBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
+
   background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
+`;
+
+const BoxStyled = styled.div`
+  display: flex;
+
+  width: 45%;
+  align-items: center;
+`;
+const BoxStyledIcon = styled.div`
+  display: flex;
+  width: 10%;
+  align-items: center;
+  justify-content: center;
 `;
 
 const CompanyScroll = styled.div`
@@ -664,6 +808,10 @@ const CompanyScroll = styled.div`
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
+  }
+  :hover {
+    background-color: cyan;
+    transition-duration: 0.5s;
   }
 `;
 
@@ -682,7 +830,7 @@ const NewCompany = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 32%;
+  height: 360px;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -706,7 +854,6 @@ const GroupBox = styled.div`
   width: 100%;
   height: 15%;
   align-items: center;
-  justify-content: space-around;
   background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
@@ -715,14 +862,14 @@ const GroupBox = styled.div`
 const UserBox = styled.div`
   display: flex;
   width: 100%;
-  height: 17%;
+  height: 15%;
   align-items: center;
   background-color: #1f5884;
   border-radius: 10px;
   margin-top: 10px;
 `;
 const UserScroll = styled.div`
-  width: 95%;
+  width: 100%;
   height: 89%;
   margin-top: 5px;
   overflow-y: auto;
@@ -730,6 +877,10 @@ const UserScroll = styled.div`
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
+  }
+  :hover {
+    background-color: cyan;
+    transition-duration: 0.5s;
   }
 `;
 const GroupScroll = styled.div`
@@ -741,6 +892,10 @@ const GroupScroll = styled.div`
   -ms-overflow-style: none;
   &::-webkit-scrollbar {
     width: 0;
+  }
+  :hover {
+    background-color: cyan;
+    transition-duration: 0.5s;
   }
 `;
 
@@ -756,7 +911,7 @@ const NewGroup = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 28%;
+  height: 250px;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -768,7 +923,7 @@ const NewUser = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 50%;
+  height: 465px;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -778,9 +933,12 @@ const NewButton = styled.button`
   position: relative;
   bottom: 0;
   margin-top: 10px;
-  width: 30%;
-  height: 5%;
+  width: 35%;
+  height: 7%;
   border-radius: 10px;
+  :hover {
+    background-color: cyan;
+  }
 `;
 
 const DataTitle = styled.text`
@@ -796,7 +954,7 @@ const InputBox = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 95%;
-  height: 30%;
+  height: 95px;
   border: solid 1px;
   background-color: #1f5884;
   border-radius: 15px;
@@ -804,7 +962,7 @@ const InputBox = styled.div`
 
 const InputStyle = styled.input`
   width: 70%;
-  height: 25%;
+  height: 25px;
   margin-top: 2%;
   margin-left: 2%;
   border-radius: 10px;
@@ -812,13 +970,13 @@ const InputStyle = styled.input`
 `;
 
 const FormButton = styled.button`
-  margin-top: 4%;
+  margin-top: 25px;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 35%;
-  height: 10%;
-  border-radius: 15px;
+  height: 40px;
+  border-radius: 10px;
   font-size: 14px;
   background: #3498db;
   color: whitesmoke;
@@ -874,6 +1032,10 @@ const LinkScroll = styled.div`
   &::-webkit-scrollbar {
     width: 0;
   }
+  :hover {
+    background-color: cyan;
+    transition-duration: 0.5s;
+  }
 `;
 
 const LinkBox = styled.div`
@@ -898,7 +1060,7 @@ const NewLinkBox = styled.div`
   //justify-content: center;
   align-items: center;
   width: 90%;
-  height: 65%;
+  height: 465px;
   border-radius: 20px;
   background-color: #1f5884;
   margin-top: 5px;
@@ -960,7 +1122,7 @@ const UserLinks = styled.div`
 `;
 
 const UserContainer = styled.div`
-  background-color: black;
+  background-color: #1f5884;
   display: flex;
   width: 100%;
   height: 85%;
