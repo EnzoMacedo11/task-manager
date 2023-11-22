@@ -84,11 +84,7 @@ export default function Login() {
             />
           </InputBox>
           <FormButton onClick={SendForm}>Login</FormButton>
-          <Link to="/register">
-            <LinkLoginRegister>
-              Não tem uma conta? Clique aqui{" "}
-            </LinkLoginRegister>
-          </Link>
+          
         </FormBox>
       </Container>
     </>
@@ -100,7 +96,7 @@ const Container = styled.div`
   width: 100%;
   height: 92vh;
   flex-direction: column;
-  background: linear-gradient(to bottom, #3498db, #523170);
+  background: linear-gradient(to bottom,#1f5884, #3498db);
   align-items: center;
   justify-content: center;
 `;
@@ -159,10 +155,6 @@ const FormButton = styled.button`
   height: 6%;
   border-radius: 15px;
   font-size: 14px;
-  background: #3498db;
-  color: whitesmoke;
-`;
-const LinkLoginRegister = styled.text`
-  font-size: 12px;
+  background: #1f5884;
   color: whitesmoke;
 `;

@@ -31,9 +31,7 @@ export default function Header() {
           <Container>
             <Left>
               <IoMenu size={22} onClick={SidebarToogle} />
-              <LeftText> Categorias </LeftText>
-              {/* <StyleSelect></StyleSelect> */}
-             
+        
             </Left>
             <div
               onClick={() => {
@@ -45,8 +43,6 @@ export default function Header() {
 
             <IoShieldCheckmarkOutline size={18} style={{ marginLeft: "5px" }} />
             <Right >
-                <RightText style={{ marginRight: "25px" }}  >Buscar</RightText>
-            {/* <StyleInput/> */}
               <IoLogOutOutline onClick={() => setUserData(null)} size={22} />
             </Right>
           </Container>
@@ -58,10 +54,7 @@ export default function Header() {
         <Sidebar visible={visible} />
         <Container>
           <Left>
-            <IoMenu size={22} onClick={SidebarToogle} />
-            <LeftText> Categorias: </LeftText>
-            <StyleSelect></StyleSelect>
-           
+            
           </Left>
           <div
             onClick={() => {
@@ -71,8 +64,7 @@ export default function Header() {
             Task-Manager
           </div>
           <Right>
-              <RightText>Buscar: </RightText>
-          <StyleInput/>
+            
             <IoLogOutOutline onClick={() => setUserData(null)} size={22} />
           </Right>
         </Container>
@@ -112,12 +104,6 @@ const Right = styled.div`
   right: 3%;
 `;
 
-const RightText = styled.text`
-font-size:20px;
-color:whitesmoke;
-
-margin-right:1%;
-`
 
 const Left = styled.div`
   position: absolute;
@@ -128,21 +114,4 @@ const Left = styled.div`
   align-items:center;
   left: 3%;
 `;
-const LeftText = styled.text`
-font-size:20px;
-color:whitesmoke;
-margin-left:15%;
-margin-right:1%;
-`
 
-const StyleSelect = styled.select`
-width:65%;
-height:50%;
-border-radius:5px;
-`
-const StyleInput = styled.input`
-width:65%;
-margin-right:7%;
-border-radius:5px;
-height:50%;
-`

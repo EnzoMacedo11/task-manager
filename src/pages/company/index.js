@@ -34,7 +34,7 @@ export default function Company() {
 
   const [groupSelected, setGroupSelected] = useState(null);
   const [groupSelectedName, setGroupSelectedName] = useState("");
-  console.log("groupS", groupSelected);
+
 
   const [links, setLinks] = useState(null);
   console.log("links", links);
@@ -221,22 +221,29 @@ export default function Company() {
     const data = {id: u.id}
     console.log(u)
     if(u.active){
-      try{
-        const response = await axios.post("http://192.168.0.14:4001/user/disable",data)
-        console.log(response.data)
-        const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
-        console.log(companySelected)
-        console.log("aa",newArray)
-        setCompanySelected({
-          ...companySelected,
-          User: newArray,
-        });
-
-        
-      }catch(error){
-        console.log(error)
+      const validation = window.confirm("Deseja desativar o usuário?")
+      if(validation){
+        try{
+          const response = await axios.post("http://192.168.0.14:4001/user/disable",data)
+          console.log(response.data)
+          const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
+          console.log(companySelected)
+          console.log("aa",newArray)
+          setCompanySelected({
+            ...companySelected,
+            User: newArray,
+          });
+          alert("Usuário Desativado")
+  
+          
+        }catch(error){
+          console.log(error)
+        }
       }
+ 
     }else{
+      const validation = window.confirm("Deseja ativar o usuário?")
+      if(validation){
       try{
         const response = await axios.post("http://192.168.0.14:4001/user/active",data)
         console.log(response.data)
@@ -247,10 +254,13 @@ export default function Company() {
           ...companySelected,
           User: newArray,
         });
+        alert("Usuário Ativado")
+        
       }catch(error){
         console.log(error)
       }
     }
+  }
 
   }
 
@@ -407,7 +417,7 @@ export default function Company() {
 
   if(companys){
     companys.sort((a,b)=> a.name.localeCompare(b.name))
-    console.log("!!!!!!!!!!!!!",companys)
+    
   }
 
   if(companySelected){
@@ -509,9 +519,9 @@ export default function Company() {
                       </BoxStyled>
                      
                     
-                        {u.active ? ( <BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} />
+                        {u.active ? ( <BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} color="white" />
                    
-                      </BoxStyledIcon>):(<BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} color="white"/>
+                      </BoxStyledIcon>):(<BoxStyledIcon>   <IoPersonSharp onClick={()=>UserActive(u)} />
                    </BoxStyledIcon>)}
 
                      
@@ -778,7 +788,7 @@ const UserInfo = styled.div`
 const CompanyBox = styled.div`
   display: flex;
   width: 100%;
-  height: 15%;
+  height: 110px;
   align-items: center;
 
   background-color: #1f5884;
@@ -811,7 +821,6 @@ const CompanyScroll = styled.div`
   }
   :hover {
     background-color: cyan;
-    transition-duration: 0.5s;
   }
 `;
 
@@ -862,7 +871,7 @@ const GroupBox = styled.div`
 const UserBox = styled.div`
   display: flex;
   width: 100%;
-  height: 15%;
+  height: 110px;
   align-items: center;
   background-color: #1f5884;
   border-radius: 10px;
@@ -880,7 +889,7 @@ const UserScroll = styled.div`
   }
   :hover {
     background-color: cyan;
-    transition-duration: 0.5s;
+  
   }
 `;
 const GroupScroll = styled.div`
@@ -895,7 +904,7 @@ const GroupScroll = styled.div`
   }
   :hover {
     background-color: cyan;
-    transition-duration: 0.5s;
+  
   }
 `;
 
@@ -930,12 +939,11 @@ const NewUser = styled.div`
 `;
 
 const NewButton = styled.button`
-  position: relative;
-  bottom: 0;
   margin-top: 10px;
   width: 35%;
-  height: 7%;
+  height: 60px;
   border-radius: 10px;
+  background-color:white;
   :hover {
     background-color: cyan;
   }
@@ -1034,7 +1042,7 @@ const LinkScroll = styled.div`
   }
   :hover {
     background-color: cyan;
-    transition-duration: 0.5s;
+  
   }
 `;
 
@@ -1066,64 +1074,6 @@ const NewLinkBox = styled.div`
   margin-top: 5px;
 `;
 
-const SelectBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 20%;
-  height: 85%;
-  border-radius: 20px;
-  background-color: #1f5884;
-  margin: 10px;
-`;
 
-const Select = styled.select`
-  width: 70%;
-  height: 30%;
-  margin-top: 2%;
-  margin-left: 3%;
-  margin-bottom: 6%;
-  border-radius: 15px;
-  padding-left: 5%;
-`;
 
-const UserText = styled.text`
-  font-size: 18px;
-  color: whitesmoke;
-`;
 
-const TopBox = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 15%;
-  background-color: #1f5884;
-`;
-const UserGroups = styled.div`
-  margin-top: 15px;
-  display: flex;
-  background-color: #1f5884;
-  flex-direction: column;
-  align-items: center;
-  width: 95%;
-  height: 30%;
-  border-radius: 15px;
-`;
-const UserLinks = styled.div`
-  margin-top: 15px;
-  display: flex;
-  background-color: #1f5884;
-  flex-direction: column;
-  align-items: center;
-  width: 95%;
-  height: 45%;
-  border-radius: 15px;
-`;
-
-const UserContainer = styled.div`
-  background-color: #1f5884;
-  display: flex;
-  width: 100%;
-  height: 85%;
-`;
