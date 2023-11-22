@@ -820,7 +820,7 @@ const CompanyScroll = styled.div`
     width: 0;
   }
   :hover {
-    background-color: cyan;
+    background-color: #4998D4;
   }
 `;
 
@@ -888,7 +888,7 @@ const UserScroll = styled.div`
     width: 0;
   }
   :hover {
-    background-color: cyan;
+    background-color: #4998D4;
   
   }
 `;
@@ -903,7 +903,7 @@ const GroupScroll = styled.div`
     width: 0;
   }
   :hover {
-    background-color: cyan;
+    background-color: #4998D4;
   
   }
 `;
@@ -945,7 +945,7 @@ const NewButton = styled.button`
   border-radius: 10px;
   background-color:white;
   :hover {
-    background-color: cyan;
+    background-color: #4998D4;
   }
 `;
 
@@ -1041,7 +1041,7 @@ const LinkScroll = styled.div`
     width: 0;
   }
   :hover {
-    background-color: cyan;
+    background-color: #4998D4;
   
   }
 `;

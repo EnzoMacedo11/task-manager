@@ -197,7 +197,7 @@ const Main = styled.div`
   display: flex;
   flex-direction: column;
   width: 95%;
-  height: 850px;
+  height: 90%;
   background-color: black;
   border-radius: 15px;
 `;
@@ -212,7 +212,7 @@ const DataBox = styled.div`
   background-color: grey;
   margin: 10px;
   :hover{
-    background-color:cyan;
+    background-color:#4998D4;
     border-radius: 20px;
   }
 `;
