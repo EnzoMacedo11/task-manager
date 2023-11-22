@@ -68,7 +68,7 @@ export default function Company() {
   async function getCompany() {
     try {
       const response = await axios.get(
-        "http://192.168.0.14:4001/company/getall",
+        "https://task-manager-back-eu7e.onrender.com/company/getall",
         { headers: { id: userData.id } }
       );
       console.log(response.data);
@@ -101,7 +101,7 @@ export default function Company() {
 
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/company/create",
+          "https://task-manager-back-eu7e.onrender.com/company/create",
           data
         );
         console.log("response", response.data);
@@ -127,7 +127,7 @@ export default function Company() {
 
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/group/create",
+          "https://task-manager-back-eu7e.onrender.com/group/create",
           data
         );
         console.log("response", response.data);
@@ -163,7 +163,7 @@ export default function Company() {
 
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/user/create",
+          "https://task-manager-back-eu7e.onrender.com/user/create",
           data
         );
         console.log("response1111", response.data);
@@ -192,7 +192,7 @@ export default function Company() {
 
     try {
       const response = await axios.post(
-        "http://192.168.0.14:4001/link/create",
+        "https://task-manager-back-eu7e.onrender.com/link/create",
         data
       );
       setLinks([...links, response.data]);
@@ -208,7 +208,7 @@ export default function Company() {
 
   async function GetLinks() {
     try {
-      const response = await axios.get("http://192.168.0.14:4001/link/getall", {
+      const response = await axios.get("https://task-manager-back-eu7e.onrender.com/link/getall", {
         headers: { id: groupSelected },
       });
       setLinks(response.data);
@@ -224,7 +224,7 @@ export default function Company() {
       const validation = window.confirm("Deseja desativar o usuário?")
       if(validation){
         try{
-          const response = await axios.post("http://192.168.0.14:4001/user/disable",data)
+          const response = await axios.post("https://task-manager-back-eu7e.onrender.com/user/disable",data)
           console.log(response.data)
           const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
           console.log(companySelected)
@@ -245,7 +245,7 @@ export default function Company() {
       const validation = window.confirm("Deseja ativar o usuário?")
       if(validation){
       try{
-        const response = await axios.post("http://192.168.0.14:4001/user/active",data)
+        const response = await axios.post("https://task-manager-back-eu7e.onrender.com/user/active",data)
         console.log(response.data)
         const newArray = companySelected.User.map((u)=> u.id === response.data.id ? response.data : u)
         console.log(companySelected)
@@ -313,7 +313,7 @@ export default function Company() {
     if (confirm) {
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/link/remove",
+          "https://task-manager-back-eu7e.onrender.com/link/remove",
           data
         );
         console.log(response.data);
@@ -336,7 +336,7 @@ export default function Company() {
     if (confirm) {
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/user/remove",
+          "https://task-manager-back-eu7e.onrender.com/user/remove",
           data
         );
         getCompany();
@@ -367,7 +367,7 @@ export default function Company() {
     if (confirm) {
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/group/remove",
+          "https://task-manager-back-eu7e.onrender.com/group/remove",
           data
         );
         console.log(response);
@@ -399,7 +399,7 @@ export default function Company() {
     if (confirm) {
       try {
         const response = await axios.post(
-          "http://192.168.0.14:4001/company/remove",
+          "https://task-manager-back-eu7e.onrender.com/company/remove",
           data
         );
         setCompanys((prevCompanies) =>
@@ -459,7 +459,7 @@ export default function Company() {
                         </BoxStyledIcon>
                       </CompanyBox>
                     ))
-                  : "null"}
+                  : "Carregando"}
               </CompanyScroll>
               <NewButton onClick={() => setCompanysVisible(false)}>
                 Nova Empresa
@@ -589,7 +589,7 @@ export default function Company() {
                 </FormButton>
               </NewUser>
             </UserInfo>
-          ) : null}
+          ) : "Carregando"}
 
           {companySelected ? (
             <GroupInfo>
@@ -646,7 +646,7 @@ export default function Company() {
                 </FormButton>
               </NewGroup>
             </GroupInfo>
-          ) : null}
+          ) : "Carregando"}
 
           {groupSelected ? (
             <LinkInfo>
@@ -671,7 +671,7 @@ export default function Company() {
                           </BoxStyledIcon>
                         </LinkBox>
                       ))
-                    : "null"}
+                    : "Carregando"}
                 </LinkScroll>
                 <NewButton onClick={() => setLinkVisible(false)}>
                   Novo Link
@@ -724,7 +724,7 @@ export default function Company() {
                 </FormButton>
               </NewLinkBox>
             </LinkInfo>
-          ) : null}
+          ) : "Carregando"}
         </Main>
       </Container>
     </>

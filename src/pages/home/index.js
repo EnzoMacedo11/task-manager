@@ -25,9 +25,11 @@ export default function Home() {
   }, [userData]);
 
   useEffect(() => {
-    if (userData.active === false) {
-      setUserData(null)
-      Navigate("/login");
+    if(userData){
+      if (userData.active === false) {
+        setUserData(null)
+        Navigate("/login");
+      }
     }
   }, []);
 
@@ -46,7 +48,7 @@ export default function Home() {
   async function getUser() {
     try {
       const response = await axios.get(
-        "http://192.168.0.14:4001/user/getuser",
+        "https://task-manager-back-eu7e.onrender.com/user/getuser",
         { headers: { id: userData.id } }
       );
       console.log(response.data);

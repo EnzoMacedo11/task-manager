@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import UserContext from "../../components/context/index.js";
 
+
 export default function Login() {
   const { userData, setUserData } = useContext(UserContext);
   console.log(userData);
@@ -19,6 +20,8 @@ export default function Login() {
     }
   }, [userData]);
 
+  
+
   async function SendForm() {
     const data = {
       companyCode:code,
@@ -27,7 +30,7 @@ export default function Login() {
     };
     console.log(data)
     try {
-      const response = await axios.post("http://192.168.0.14:4001/user/login", data);
+      const response = await axios.post("https://task-manager-back-eu7e.onrender.com/user/login", data);
       console.log(response.data);
       setUserData({
         id: response.data.id,
@@ -39,7 +42,7 @@ export default function Login() {
       Navigate("/");
     } catch (error) {
       console.log(error.response);
-      alert(error.response)
+      alert(error.response.data)
     }
   }
 

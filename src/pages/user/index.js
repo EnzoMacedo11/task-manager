@@ -66,7 +66,7 @@ export default function User() {
   async function getUser() {
     try {
       const response = await axios.get(
-        "http://192.168.0.14:4001/user/getuser",
+        "https://task-manager-back-eu7e.onrender.com/user/getuser",
         {
           headers: { id: userSelected },
         }
@@ -81,7 +81,7 @@ export default function User() {
   async function GetUsersbyCompany() {
     try {
       const response = await axios.get(
-        "http://192.168.0.14:4001/user/getusersbycompanycode",
+        "https://task-manager-back-eu7e.onrender.com/user/getusersbycompanycode",
         {
           headers: { code: userComapanyCode },
         }
@@ -138,7 +138,7 @@ export default function User() {
     };
 
     try {
-      await axios.post("http://192.168.0.14:4001/user/addusertogroup", data);
+      await axios.post("https://task-manager-back-eu7e.onrender.com/user/addusertogroup", data);
 
       getUser();
     } catch (error) {
@@ -153,7 +153,7 @@ export default function User() {
     };
 
     try {
-      await axios.post("http://192.168.0.14:4001/user/removeusertogroup", data);
+      await axios.post("https://task-manager-back-eu7e.onrender.com/user/removeusertogroup", data);
       getUser();
     } catch (error) {
       console.log(error.response.data);
@@ -169,7 +169,7 @@ export default function User() {
     }
 
     try {
-      const response = await axios.get("http://192.168.0.14:4001/link/getall", {
+      const response = await axios.get("https://task-manager-back-eu7e.onrender.com/link/getall", {
         headers: { id },
       });
       setLinks(response.data);
@@ -187,7 +187,7 @@ export default function User() {
 
     try {
       const response = await axios.post(
-        "http://192.168.0.14:4001/link/addlinktouser",
+        "https://task-manager-back-eu7e.onrender.com/link/addlinktouser",
         data
       );
       console.log(response);
@@ -208,7 +208,7 @@ export default function User() {
 
     try {
       const response = await axios.post(
-        "http://192.168.0.14:4001/link/removelinktouser",
+        "https://task-manager-back-eu7e.onrender.com/link/removelinktouser",
         data
       );
       console.log(response);
