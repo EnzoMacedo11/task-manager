@@ -218,7 +218,8 @@ const DataBox = styled.div`
 `;
 
 const Description = styled.text`
-  font-size: 16px;
+margin-top:5px;
+  font-size: 18px;
   color: white;
 `;
 const ImageUrl = styled.img`
