@@ -218,7 +218,7 @@ export default function Company() {
   }
 
   async function UserActive(u){
-    const data = {id: u.id}
+    const data = {id: u.id, userId:userData.id}
     console.log(u)
     if(u.active){
       const validation = window.confirm("Deseja desativar o usuário?")
@@ -237,7 +237,7 @@ export default function Company() {
   
           
         }catch(error){
-          console.log(error)
+          alert(error.response.data);
         }
       }
  
@@ -257,7 +257,7 @@ export default function Company() {
         alert("Usuário Ativado")
         
       }catch(error){
-        console.log(error)
+        alert(error.response.data);
       }
     }
   }
@@ -395,6 +395,7 @@ export default function Company() {
     console.log(confirm);
     const data = {
       id: c.id,
+      userId: userData.id
     };
     if (confirm) {
       try {
@@ -408,7 +409,7 @@ export default function Company() {
         setCompanySelected(null);
         console.log(response);
       } catch (error) {
-        console.log(error);
+        alert(error.response.data);
       }
     }
   }
@@ -513,7 +514,7 @@ export default function Company() {
                 <UserScroll>
                   {companySelected.User.map((u) => (
                     <UserBox key={u}>
-                      <BoxStyled style={{ width: "80%" ,display:"flex",flexDirection:"column",alignItems:"flex-start"}}>
+                      <BoxStyled style={{ width: "87%" ,display:"flex",flexDirection:"column",alignItems:"flex-start"}}>
                         <GroupBoxText >Nome: {u.name}</GroupBoxText>
                         <GroupBoxText style={{marginTop:"15px",border:"solid black 2px"}}>Matricula: {u.enrolment}</GroupBoxText>
                       </BoxStyled>
@@ -526,13 +527,13 @@ export default function Company() {
 
                      
 
-                      <BoxStyledIcon>
+                      {/* <BoxStyledIcon>
                         {" "}
                         <IoTrashSharp
                           onClick={() => DeleteUser(u)}
                           color="white"
                         />
-                      </BoxStyledIcon>
+                      </BoxStyledIcon> */}
                     </UserBox>
                   ))}
                 </UserScroll>
